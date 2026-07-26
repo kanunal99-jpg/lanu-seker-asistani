@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>LANU Şeker Asistan</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}
 :root{--primary:#0f766e;--primary-light:#14b8a6;--primary-dark:#134e4a;--danger:#dc2626;--warning:#f59e0b;--success:#16a34a;--bg:#f0fdfa;--card:#ffffff;--text:#1e293b;--text-light:#64748b;--border:#ccfbf1}
@@ -91,6 +91,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .summary-ring{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--primary) 0% 75%,#e2e8f0 75% 100%);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative}
 .summary-ring-inner{width:90px;height:90px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--primary)}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -938,12 +939,17 @@ function closeSplash(){clearTimeout(splashTimer);document.getElementById('splash
 
 // ===================== AUTH =====================
 function togglePass(id,btn){let el=document.getElementById(id);if(el.type==='password'){el.type='text';btn.textContent='Gizle';}else{el.type='password';btn.textContent='Göster';}}
+function forgotPassword(){
+  let u=DB.get('lanu_user');
+  if(u&&u.email){alert('Kayıtlı e-posta: '+u.email+'\n\nEğer şifrenizi hatırlamıyorsanız, aşağıdaki butonla TÜM verileri silip yeniden kayıt olabilirsiniz.');if(confirm('Tüm verileri silip yeniden kayıt olmak istiyor musunuz?')){clearAllData();}}
+  else{alert('Kayıtlı kullanıcı bulunamadı. Lütfen Kayıt Olun.');toggleAuth();}
+}
 function toggleAuth(){
   document.getElementById('auth-login').classList.toggle('hidden');
   document.getElementById('auth-register').classList.toggle('hidden');
 }
 function register(){
-  if(!storageOK()){alert('Tarayıcınız veri depolamayı desteklemiyor. Lütfen gizli modu kapatın veya Chrome/Safari normal modda açın.');return;}
+  if(!storageOK()){alert('Tarayıcınız veri depolamayı desteklemiyor.\n\nSafari kullanıyorsanız:\n1. Gizli modu KAPATIN\n2. Uygulamayı "Ana Ekrana Ekle" yapın\n3. Ana ekrandan açın');return;}
   let u={
     name:document.getElementById('reg-name').value.trim(),
     email:document.getElementById('reg-email').value.trim().toLowerCase(),
@@ -955,22 +961,26 @@ function register(){
     type:document.getElementById('reg-type').value
   };
   if(!u.name||!u.email||!u.password||u.password.length<6){alert('Lütfen tüm alanları doldurun. Şifre en az 6 karakter.');return;}
+  // Eski kullanıcı varsa uyarı
+  let old=DB.get('lanu_user');
+  if(old&&old.email===u.email){if(!confirm('Bu e-posta ile kayıtlı kullanıcı zaten var. Üzerine yazmak istiyor musunuz?'))return;}
   let ok=DB.set('lanu_user',u);
   if(!ok)return;
   // Doğrula
   let saved=DB.get('lanu_user');
-  if(!saved||saved.email!==u.email){alert('Kayıt kaydedilemedi! Lütfen tekrar deneyin.');return;}
+  if(!saved||saved.email!==u.email){alert('Kayıt kaydedilemedi! Tarayıcı veri depolamayı engelliyor olabilir. Lütfen gizli modu kapatıp tekrar deneyin.');return;}
   currentUser=u;
-  alert('Kayıt başarılı! Hoş geldiniz '+u.name);
+  alert('✅ Kayıt başarılı!\n\nÖnemli: Safari kullanıyorsanız uygulamayı ANA EKRANA EKLEYİN ki verileriniz silinmesin.');
   initApp();
 }
 function login(){
   let e=document.getElementById('login-email').value.trim().toLowerCase();
   let p=document.getElementById('login-pass').value;
+  if(!e||!p){alert('Lütfen e-posta ve şifre girin.');return;}
   let u=DB.get('lanu_user');
-  if(!u){alert('Kayıtlı kullanıcı bulunamadı. Lütfen önce Kayıt Olun.');return;}
+  if(!u){alert('Kayıtlı kullanıcı bulunamadı.\n\nSafari kullanıyorsanız verileriniz silinmiş olabilir. Lütfen Kayıt Olun.');return;}
   if(u.email===e&&u.password===p){currentUser=u;initApp();}
-  else{alert('E-posta veya şifre hatalı.');}
+  else{alert('E-posta veya şifre hatalı.\n\nEğer şifrenizi unuttuysanız "Şifremi Unuttum" butonuna basın.');}
 }
 function initApp(){
   if(!currentUser)return;
@@ -1742,7 +1752,7 @@ window.onload=()=>{
 
 // ===================== SERVICE WORKER =====================
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 </script>
 </body>
