@@ -1,12 +1,15 @@
 {
-  "name": "LANU Seker Asistan",
+  "name": "LANU Şeker Asistan",
   "short_name": "LANU",
-  "start_url": ".",
+  "start_url": "/lanu-seker-asistani/",
   "display": "standalone",
   "background_color": "#f0fdfa",
   "theme_color": "#0f766e",
   "icons": [
-    {"src": "icon.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon.png", "sizes": "512x512", "type": "image/png"}
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🩺%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
   ]
 }
