@@ -86,11 +86,12 @@ body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .news-date{font-size:12px;color:var(--text-light);margin-top:4px}
 .appointment-card{padding:12px;border-radius:12px;background:linear-gradient(135deg,#f0fdfa 0%,#ccfbf1 100%);border:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .share-btn{background:#25d366;color:#fff;padding:10px 16px;border-radius:8px;border:none;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.voice-btn{position:fixed;bottom:80px;right:16px;width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:999;display:flex;align-items:center;justify-content:center}
+.voice-btn{position:fixed;bottom:90px;right:16px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 15px rgba(15,118,110,.4);z-index:1001;display:flex;align-items:center;justify-content:center;transition:transform .2s}.voice-btn:active{transform:scale(.9)}
 .voice-listening{animation:pulse 1s infinite;background:var(--danger)}
 .summary-ring{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--primary) 0% 75%,#e2e8f0 75% 100%);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative}
 .summary-ring-inner{width:90px;height:90px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--primary)}
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -1316,27 +1317,61 @@ function exportData(){
 // ===================== VOICE COMMAND =====================
 let recognition=null;let listening=false;
 function toggleVoice(){
-  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Tarayıcınız sesli komutu desteklemiyor. Chrome kullanın.');return;}
   let btn=document.getElementById('voice-btn');
+  // iOS Safari kontrolü
+  let isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  let isSafari=/Safari/.test(navigator.userAgent)&&!/Chrome/.test(navigator.userAgent);
+  if(isIOS&&isSafari){alert('iPhone Safari sesli komutu desteklemiyor. Lütfen Chrome uygulamasını kullanın veya butonları kullanın.');return;}
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Tarayıcınız sesli komutu desteklemiyor. Chrome kullanın.');return;}
   if(listening){if(recognition)recognition.stop();listening=false;btn.classList.remove('voice-listening');btn.innerHTML='🎙️';return;}
   let SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SpeechRecognition();recognition.lang='tr-TR';recognition.continuous=false;
+  recognition=new SpeechRecognition();recognition.lang='tr-TR';recognition.continuous=false;recognition.interimResults=false;
   recognition.onstart=()=>{listening=true;btn.classList.add('voice-listening');btn.innerHTML='🔴';};
   recognition.onend=()=>{listening=false;btn.classList.remove('voice-listening');btn.innerHTML='🎙️';};
+  recognition.onerror=(e)=>{listening=false;btn.classList.remove('voice-listening');btn.innerHTML='🎙️';if(e.error!=='no-speech'&&e.error!=='aborted')alert('Ses algılanamadı. Lütfen tekrar deneyin.');};
   recognition.onresult=(e)=>{
-    let cmd=e.results[0][0].transcript.toLowerCase();console.log('Komut:',cmd);
-    if(cmd.includes('annem')||cmd.includes('annemi'))callContact('Aile');
-    else if(cmd.includes('babam')||cmd.includes('babamı'))callContact('Aile');
-    else if(cmd.includes('doktor'))callContact('Doktor');
-    else if(cmd.includes('112')||cmd.includes('acil'))window.location.href='tel:112';
-    else if(cmd.includes('şeker')||cmd.includes('kan'))showPage('sugar');
-    else if(cmd.includes('iğne')||cmd.includes('insülin'))showPage('injection');
-    else if(cmd.includes('ilaç'))showPage('medicine');
-    else if(cmd.includes('su'))showPage('water');
-    else if(cmd.includes('anasayfa')||cmd.includes('ev'))showPage('home');
-    else alert('Komut anlaşılamadı: "'+cmd+'"');
+    let raw=e.results[0][0].transcript;let cmd=raw.toLowerCase();console.log('Komut:',cmd);
+    // LANU wakeword kontrolü - opsiyonel ama tercih edilir
+    let hasLANU=cmd.includes('lanu')||cmd.includes('lanü')||cmd.includes('lanı')||cmd.includes('lana');
+    // ARAMA KOMUTLARI
+    if(cmd.includes('112')||cmd.includes('acil')||cmd.includes('ambulans')){window.location.href='tel:112';speak('Acil çağrı yapılıyor');return;}
+    if((cmd.includes('annem')||cmd.includes('annemi')||cmd.includes('anneyi')||cmd.includes('anneyi ara'))&&hasLANU){callContactByName('anne');speak('Anneniz aranıyor');return;}
+    if((cmd.includes('babam')||cmd.includes('babamı')||cmd.includes('babayı')||cmd.includes('babayı ara'))&&hasLANU){callContactByName('baba');speak('Babanız aranıyor');return;}
+    if((cmd.includes('eşim')||cmd.includes('eşimi')||cmd.includes('karım')||cmd.includes('kocam'))&&hasLANU){callContactByName('eş');speak('Eşiniz aranıyor');return;}
+    if((cmd.includes('doktor')||cmd.includes('doktoru'))&&hasLANU){callContact('Doktor');speak('Doktorunuz aranıyor');return;}
+    if((cmd.includes('kardeş')||cmd.includes('kardeşim'))&&hasLANU){callContactByName('kardeş');speak('Kardeşiniz aranıyor');return;}
+    // SAYFA KOMUTLARI
+    if((cmd.includes('şeker')||cmd.includes('kan şekeri'))&&hasLANU){showPage('sugar');speak('Kan şekeri sayfası açıldı');return;}
+    if((cmd.includes('iğne')||cmd.includes('insülin')||cmd.includes('enjeksiyon'))&&hasLANU){showPage('injection');speak('İğne takibi açıldı');return;}
+    if((cmd.includes('ilaç')||cmd.includes('hap'))&&hasLANU){showPage('medicine');speak('İlaç takibi açıldı');return;}
+    if((cmd.includes('su')||cmd.includes('bardak'))&&hasLANU){showPage('water');speak('Su takibi açıldı');return;}
+    if((cmd.includes('adım')||cmd.includes('yürüyüş'))&&hasLANU){showPage('step');speak('Adım sayar açıldı');return;}
+    if((cmd.includes('egzersiz')||cmd.includes('spor'))&&hasLANU){showPage('exercise');speak('Egzersiz takibi açıldı');return;}
+    if((cmd.includes('kilo')||cmd.includes('tartı'))&&hasLANU){showPage('weight');speak('Kilo takibi açıldı');return;}
+    if((cmd.includes('ayak')||cmd.includes('ayak bakımı'))&&hasLANU){showPage('foot');speak('Ayak bakımı açıldı');return;}
+    if((cmd.includes('besin')||cmd.includes('yemek')||cmd.includes('gi'))&&hasLANU){showPage('food');speak('Besin kütüphanesi açıldı');return;}
+    if((cmd.includes('hesap')||cmd.includes('karbonhidrat')||cmd.includes('kh'))&&hasLANU){showPage('calc');speak('Hesaplayıcı açıldı');return;}
+    if((cmd.includes('randevu')||cmd.includes('doktor randevusu'))&&hasLANU){showPage('appointment');speak('Randevular açıldı');return;}
+    if((cmd.includes('eğitim')||cmd.includes('bilgi')||cmd.includes('makale'))&&hasLANU){showPage('education');speak('Eğitim merkezi açıldı');return;}
+    if((cmd.includes('haber')||cmd.includes('güncel'))&&hasLANU){showPage('news');speak('Haberler açıldı');return;}
+    if((cmd.includes('özet')||cmd.includes('gün sonu'))&&hasLANU){showPage('summary');speak('Gün sonu özeti açıldı');return;}
+    if((cmd.includes('ayar')||cmd.includes('profil'))&&hasLANU){showPage('settings');speak('Ayarlar açıldı');return;}
+    if((cmd.includes('anasayfa')||cmd.includes('ev')||cmd.includes('ana sayfa'))&&hasLANU){showPage('home');speak('Ana sayfa açıldı');return;}
+    if((cmd.includes('acil')||cmd.includes('yardım'))&&hasLANU){showPage('emergency');speak('Acil durum sayfası açıldı');return;}
+    // HIZLI İŞLEM KOMUTLARI
+    if((cmd.includes('su içtim')||cmd.includes('su iç'))&&hasLANU){waterData.count=Math.min(8,waterData.count+1);DB.set('lanu_water',waterData);refreshHome();renderWater();speak(waterData.count+' bardak su kaydedildi');return;}
+    if((cmd.includes('şekerim')||cmd.includes('son şekerim'))&&hasLANU){let s=sugars[0];speak(s?'Son kan şekeri değeriniz '+s.value+' miligram desilitre':'Henüz kan şekeri kaydınız yok');return;}
+    // Eğer LANU yoksa uyar ama yine de dene
+    if(!hasLANU){speak('Lütfen komutunuzu LANU ile başlatın. Örneğin: LANU annemi ara');}
+    else{speak('Komut anlaşılamadı: '+raw);}
   };
   recognition.start();
+}
+function speak(text){if('speechSynthesis' in window){let u=new SpeechSynthesisUtterance(text);u.lang='tr-TR';u.rate=1.1;window.speechSynthesis.speak(u);}}
+function callContactByName(keyword){
+  let c=contacts.find(x=>x.name.toLowerCase().includes(keyword)||x.type.toLowerCase().includes(keyword));
+  if(c)window.location.href='tel:'+c.phone;
+  else{let c2=contacts.find(x=>x.type==='Aile');if(c2)window.location.href='tel:'+c2.phone;else alert(keyword+' kişisi bulunamadı.');}
 }
 function callContact(type){
   let c=contacts.find(x=>x.type===type);if(c)window.location.href='tel:'+c.phone;else alert(type+' kişisi bulunamadı.');
