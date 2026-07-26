@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<title>LANU Seker Asistan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { background: #f0fdfa; color: #134e4a; }
+.header { background: linear-gradient(135deg, #0f766e, #115e59); color: white; padding: 20px; text-align: center; }
+.header h1 { font-size: 22px; }
+.header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+.card { background: white; border-radius: 16px; padding: 16px; margin: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+.btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.btn-teal { background: linear-gradient(135deg, #0f766e, #115e59); color: white; }
+.btn-outline { background: white; color: #0f766e; border: 2px solid #0f766e; }
+.inj-item { display: flex; align-items: center; padding: 14px; background: #f0fdfa; border-radius: 12px; margin-bottom: 8px; border-left: 4px solid #f59e0b; }
+.inj-item.done { border-left-color: #0f766e; background: #ccfbf1; }
+.inj-icon { font-size: 28px; margin-right: 12px; }
+.inj-info h4 { font-size: 15px; }
+.inj-info p { font-size: 12px; color: #6b7280; }
+.footer { text-align: center; padding: 20px; background: linear-gradient(135deg, #115e59, #042f2e); color: white; margin-top: 20px; }
+.footer .logo { font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+.footer .tag { font-size: 11px; color: #5eead4; margin-top: 4px; }
+.footer .dev { font-size: 10px; color: #99f6e4; margin-top: 6px; opacity: 0.7; }
+input[type="number"] { width: 100%; padding: 12px; border: 2px solid #99f6e4; border-radius: 10px; font-size: 16px; margin-bottom: 8px; }
+.install-btn { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; padding: 14px 24px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="font-size: 36px; margin-bottom: 8px;">🩺</div>
+  <h1>LANU Seker Asistan</h1>
+  <p>Diyabet yonetiminde yaninizda</p>
+</div>
+
+<button class="install-btn" id="installBtn" onclick="installApp()">📲 Telefona Kur</button>
+
+<div class="card">
+  <h3 style="margin-bottom: 12px;">🚨 Acil Durum</h3>
+  <button class="btn btn-red" onclick="call112()">🚑 112 ACIL CAGRI</button>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom: 12px;">💉 Bugunku Igneler</h3>
+  <div id="injectionList"></div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom: 12px;">⚖️ Kilo Takibi</h3>
+  <input type="number" id="weightInput" placeholder="Bugunku kilonuz (kg)" step="0.1">
+  <button class="btn btn-teal" onclick="saveWeight()">💾 Kaydet</button>
+  <div id="weightDisplay" style="margin-top: 10px; font-size: 14px; color: #6b7280;"></div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom: 12px;">📚 TEMD Bilgi Kartlari</h3>
+  <div style="background: #fef3c7; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; line-height: 1.5;">
+    <strong>🍎 Hipoglisemi Aninda:</strong><br>
+    15-20 g glukoz alin. 1 cay bardagi meyve suyu veya 3-4 seker yeterli. 15 dakika bekleyip tekrar olcum yapin.
+  </div>
+  <div style="background: #fef2f2; padding: 12px; border-radius: 10px; font-size: 13px; line-height: 1.5;">
+    <strong>🌡️ Hiperglisemi Belirtileri:</strong><br>
+    Asiri susama, sik idrara cikma, bulanik gorme. Kan sekeri 250+ ise hekiminize basvurun.
+  </div>
+</div>
+
+<div class="footer">
+  <div class="logo">LANU</div>
+  <div class="tag">Seker Asistan — Diyabet yonetiminde yaninizda</div>
+  <div class="dev">LANU tarafindan gelistirilmistir © 2026</div>
+</div>
+
+<script>
+let injections = JSON.parse(localStorage.getItem('lanu_injections') || '[]');
+if (injections.length === 0) {
+  injections = [
+    {label: 'Sabah', time: '08:00', done: false, icon: '🌅'},
+    {label: 'Ogle', time: '13:00', done: false, icon: '☀️'},
+    {label: 'Aksam', time: '20:00', done: false, icon: '🌙'},
+    {label: 'Gece', time: '23:00', done: false, icon: '🌃'}
+  ];
+}
+
+function renderInjections() {
+  const list = document.getElementById('injectionList');
+  list.innerHTML = injections.map((inj, i) => `
+    <div class="inj-item ${inj.done ? 'done' : ''}">
+      <div class="inj-icon">${inj.icon}</div>
+      <div class="inj-info" style="flex:1;">
+        <h4>${inj.label} Ignesi</h4>
+        <p>${inj.done ? '✅ ' + (inj.doneAt || 'Yapildi') : '⏳ ' + inj.time + ' planlandi'}</p>
+      </div>
+      ${!inj.done ? `<button class="btn btn-teal" style="width:auto;padding:8px 14px;font-size:13px;" onclick="markDone(${i})">Yaptim</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function markDone(i) {
+  injections[i].done = true;
+  injections[i].doneAt = new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+  localStorage.setItem('lanu_injections', JSON.stringify(injections));
+  renderInjections();
+  if ('vibrate' in navigator) navigator.vibrate(200);
+}
+
+function saveWeight() {
+  const val = document.getElementById('weightInput').value;
+  if (val) {
+    localStorage.setItem('lanu_weight', val);
+    document.getElementById('weightDisplay').innerHTML = `✅ ${val} kg kaydedildi!`;
+    document.getElementById('weightInput').value = '';
+  }
+}
+
+function call112() {
+  window.location.href = 'tel:112';
+}
+
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'block';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt = null;
+    document.getElementById('installBtn').style.display = 'none';
+  } else {
+    alert('iPhone: Safari paylas butonu -> "Ana Ekrana Ekle"\nAndroid: Chrome menu -> "Ana Ekrana Ekle"');
+  }
+}
+
+renderInjections();
+const savedWeight = localStorage.getItem('lanu_weight');
+if (savedWeight) document.getElementById('weightDisplay').innerHTML = `Son kilo: ${savedWeight} kg`;
+</script>
+
+</body>
+</html>
