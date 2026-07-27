@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4A90D9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>LANU Şeker Asistan</title>
+<style>
+:root{--primary:#4A90D9;--primary-dark:#357ABD;--secondary:#48BB78;--danger:#E53E3E;--warning:#ED8936;--bg:#f0f4f8;--card:#ffffff;--text:#2d3748;--text-light:#718096;--shadow:0 4px 20px rgba(0,0,0,0.08);--radius:16px}
+.dark{--bg:#1a202c;--card:#2d3748;--text:#e2e8f0;--text-light:#a0aec0;--shadow:0 4px 20px rgba(0,0,0,0.3)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:90px}
+.splash{position:fixed;inset:0;background:linear-gradient(135deg,#4A90D9 0%,#63B3ED 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s}
+.splash h1{color:white;font-size:42px;margin-bottom:10px}
+.splash p{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:40px}
+.splash-btn{background:white;color:var(--primary);border:none;padding:14px 48px;border-radius:30px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.2)}
+.page{display:none;padding:16px;max-width:600px;margin:0 auto;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card-title{font-size:18px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:white}
+.btn-secondary{background:var(--secondary);color:white}
+.btn-danger{background:var(--danger);color:white}
+.btn-outline{background:transparent;border:2px solid var(--primary);color:var(--primary)}
+input,select,textarea{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;background:var(--card);color:var(--text);margin-bottom:10px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+label{display:block;font-size:13px;color:var(--text-light);margin-bottom:4px;font-weight:500}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.toggle:last-child{border-bottom:none}
+.switch{width:50px;height:28px;background:#cbd5e0;border-radius:14px;position:relative;cursor:pointer;transition:.3s}
+.switch.on{background:var(--primary)}
+.switch::after{content:'';position:absolute;width:24px;height:24px;background:white;border-radius:50%;top:2px;left:2px;transition:.3s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.switch.on::after{left:24px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;justify-content:space-around;padding:8px 0 12px;box-shadow:0 -4px 20px rgba(0,0,0,.08);z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-light);font-size:11px;cursor:pointer;border:none;background:none}
+.nav-item.active{color:var(--primary);font-weight:600}
+.nav-icon{font-size:22px}
+.empty{text-align:center;padding:40px 20px;color:var(--text-light)}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-green{background:#c6f6d5;color:#22543d}
+.badge-red{background:#fed7d7;color:#742a2a}
+.badge-yellow{background:#fefcbf;color:#744210}
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.region-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.region-btn{padding:12px;border:2px solid #e2e8f0;border-radius:12px;background:var(--card);cursor:pointer;text-align:center;font-size:13px;transition:.2s}
+.region-btn.selected{border-color:var(--primary);background:#ebf8ff;color:var(--primary);font-weight:600}
+.checkbox-item{display:flex;align-items:center;gap:12px;padding:10px 0}
+.checkbox-item input[type="checkbox"]{width:22px;height:22px;margin:0;accent-color:var(--primary)}
+.time-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.time-row input{flex:1;margin:0}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.menu-item{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);cursor:pointer;transition:transform .1s}
+.menu-item:active{transform:scale(.97)}
+.menu-item-icon{font-size:28px;margin-bottom:6px}
+.menu-item-text{font-size:13px;font-weight:600}
+.news-card{padding:14px;border-left:4px solid var(--primary);margin-bottom:10px;background:var(--card);border-radius:0 12px 12px 0}
+.emergency-btn{width:100%;padding:20px;border-radius:var(--radius);font-size:18px;font-weight:700;color:white;border:none;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.emergency-112{background:var(--danger)}
+.emergency-family{background:var(--primary)}
+.voice-btn{width:80px;height:80px;border-radius:50%;background:var(--primary);color:white;border:none;font-size:32px;display:flex;align-items:center;justify-content:center;margin:20px auto;cursor:pointer;box-shadow:0 4px 15px rgba(74,144,217,.4);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(74,144,217,.4)}70%{box-shadow:0 0 0 20px rgba(74,144,217,0)}100%{box-shadow:0 0 0 0 rgba(74,144,217,0)}}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:#2d3748;color:white;padding:12px 24px;border-radius:12px;font-size:14px;z-index:10000;transition:.3s;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.education-card{padding:14px;margin-bottom:10px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.education-tag{font-size:11px;padding:3px 8px;border-radius:4px;background:#ebf8ff;color:var(--primary);display:inline-block;margin-bottom:6px}
+.appointment-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow)}
+.appointment-icon{font-size:24px}
+.appointment-info{flex:1}
+.appointment-title{font-weight:600;font-size:15px}
+.appointment-date{font-size:13px;color:var(--text-light)}
+.caregiver-live{padding:16px;background:var(--card);border-radius:var(--radius);text-align:center;box-shadow:var(--shadow)}
+.live-indicator{width:12px;height:12px;background:var(--danger);border-radius:50%;display:inline-block;margin-right:6px;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.summary-ring{display:flex;flex-direction:column;align-items:center;gap:8px;margin:20px 0}
+.motivation-text{font-style:italic;color:var(--text-light);text-align:center;padding:0 20px}
+.food-lib-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.gi-low{color:var(--secondary);font-weight:600}
+.gi-med{color:var(--warning);font-weight:600}
+.gi-high{color:var(--danger);font-weight:600}
+@media(max-width:380px){.grid-2,.grid-3,.menu-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="splash" id="splash"><h1>LANU</h1><p>Şeker Asistanınız</p><button class="splash-btn" onclick="hideSplash()">Başla</button></div>
+<div class="toast" id="toast"></div>
+
+<!-- AUTH -->
+<div class="page active" id="page-auth">
+<div style="text-align:center;padding:40px 20px">
+<h1 style="font-size:48px;color:var(--primary);margin-bottom:8px">LANU</h1>
+<p style="color:var(--text-light);margin-bottom:40px">Diyabet yönetiminde yanınızda</p>
+</div>
+<div class="card">
+<div id="auth-login">
+<label>E-posta</label><input type="email" id="auth-email" placeholder="ornek@email.com">
+<label>Şifre</label><input type="password" id="auth-pass" placeholder="••••••">
+<button class="btn btn-primary" onclick="login()" style="margin-top:10px">Giriş Yap</button>
+<p style="text-align:center;margin-top:16px;color:var(--text-light);font-size:14px">Hesabınız yok mu? <a href="#" onclick="toggleAuth()" style="color:var(--primary);text-decoration:none;font-weight:600">Kayıt Ol</a></p>
+</div>
+<div id="auth-register" style="display:none">
+<label>Ad Soyad</label><input type="text" id="reg-name" placeholder="Adınız">
+<label>E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com">
+<label>Şifre</label><input type="password" id="reg-pass" placeholder="••••••">
+<label>Yaş</label><input type="number" id="reg-age" placeholder="36">
+<label>Boy (cm)</label><input type="number" id="reg-height" placeholder="175">
+<label>Kilo (kg)</label><input type="number" id="reg-weight" placeholder="78">
+<label>Telefon (WhatsApp için)</label>
+<input type="tel" id="reg-phone" placeholder="+90 5XX XXX XX XX">
+<label>Diyabet Tipi</label>
+<select id="reg-type"><option value="1">Tip 1</option><option value="2">Tip 2</option><option value="gestasyonel">Gestasyonel</option></select>
+<button class="btn btn-primary" onclick="register()" style="margin-top:10px">Kayıt Ol</button>
+<p style="text-align:center;margin-top:16px;color:var(--text-light);font-size:14px">Zaten hesabınız var mı? <a href="#" onclick="toggleAuth()" style="color:var(--primary);text-decoration:none;font-weight:600">Giriş Yap</a></p>
+</div>
+</div>
+</div>
+
+<!-- HOME -->
+<div class="page" id="page-home">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+<div><h2 id="home-greeting" style="font-size:20px">Merhaba</h2><p id="home-sub" style="font-size:13px;color:var(--text-light)">Bugün nasıl hissediyorsunuz?</p><p id="home-motivation" style="font-size:12px;color:var(--primary);font-style:italic;margin-top:4px;font-weight:500"></p></div>
+<div style="width:44px;height:44px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;cursor:pointer" onclick="navigate('page-profile')" id="home-avatar">👤</div>
+</div>
+<div class="grid-2">
+<div class="card" style="cursor:pointer" onclick="navigate('page-sugar')"><div style="font-size:24px;margin-bottom:4px">🩸</div><div style="font-size:12px;color:var(--text-light)">Son Kan Şekeri</div><div id="home-last-sugar" style="font-size:22px;font-weight:700;color:var(--primary)">--</div><div id="home-sugar-time" style="font-size:11px;color:var(--text-light)">Henüz ölçüm yok</div></div>
+<div class="card" style="cursor:pointer" onclick="navigate('page-injection')"><div style="font-size:24px;margin-bottom:4px">💉</div><div style="font-size:12px;color:var(--text-light)">Bugün İğne</div><div id="home-today-inj" style="font-size:22px;font-weight:700;color:var(--primary)">0</div><div style="font-size:11px;color:var(--text-light)">ünite</div></div>
+<div class="card" style="cursor:pointer" onclick="navigate('page-water')"><div style="font-size:24px;margin-bottom:4px">💧</div><div style="font-size:12px;color:var(--text-light)">Su</div><div id="home-water" style="font-size:22px;font-weight:700;color:var(--primary)">0/8</div></div>
+<div class="card" style="cursor:pointer" onclick="navigate('page-medicine')"><div style="font-size:24px;margin-bottom:4px">💊</div><div style="font-size:12px;color:var(--text-light)">İlaç Stok</div><div id="home-meds" style="font-size:22px;font-weight:700;color:var(--primary)">0</div><div id="home-meds-warning" style="font-size:11px;color:var(--danger);display:none">⚠️ Stok az!</div></div>
+</div>
+<div class="card" onclick="navigate('page-sugar')" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:600;margin-bottom:4px">📊 Hızlı Kan Şekeri Ekle</div><div style="font-size:12px;color:var(--text-light)">Açlık, tokluk veya gece ölçümü</div></div><div style="font-size:24px">➕</div></div></div>
+<div class="card" onclick="navigate('page-day-summary')" style="cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white"><div style="text-align:center;padding:10px"><div style="font-size:16px;font-weight:700;margin-bottom:4px">🌙 Gün Sonu Özeti</div><div style="font-size:13px;opacity:.9">Günlük ilerlemenizi görün</div></div></div>
+<div class="card" onclick="navigate('page-emergency')" style="cursor:pointer;background:linear-gradient(135deg,#e53e3e 0%,#c53030 100%);color:white"><div style="text-align:center;padding:10px"><div style="font-size:16px;font-weight:700;margin-bottom:4px">🚨 Acil Durum</div><div style="font-size:13px;opacity:.9">Hızlı arama ve yardım</div></div></div>
+</div>
+
+<!-- SUGAR -->
+<div class="page" id="page-sugar">
+<div class="card-title">🩸 Kan Şekeri Takibi</div>
+<div class="card">
+<label>Yeni Ölçüm</label><input type="number" id="sugar-value" placeholder="Değer (mg/dL)">
+<div class="grid-3">
+<select id="sugar-type"><option value="Açlık">Açlık</option><option value="Tokluk">Tokluk</option><option value="Gece">Gece</option><option value="Rastgele">Rastgele</option></select>
+<input type="date" id="sugar-date"><input type="time" id="sugar-time-input">
+</div>
+<button class="btn btn-primary" onclick="addSugar()">Kaydet</button>
+</div>
+<div class="card"><div class="card-title">🎯 Hedef Aralıklar</div>
+<div class="grid-3" style="text-align:center;font-size:13px">
+<div><span class="badge badge-green">Açlık 70-100</span></div>
+<div><span class="badge badge-yellow">Tokluk 70-140</span></div>
+<div><span class="badge badge-green">Gece 90-150</span></div>
+</div></div>
+<div class="card"><div class="card-title">📋 Geçmiş</div><div id="sugar-list"></div></div>
+</div>
+
+<!-- INJECTION -->
+<div class="page" id="page-injection">
+<div class="card-title">💉 İğne Takibi</div>
+<div class="card">
+<label>Yeni İğne</label>
+<div class="grid-2">
+<select id="inj-meal"><option>Kahvaltı Öncesi</option><option>Kahvaltı Sonrası</option><option>Öğle Öncesi</option><option>Öğle Sonrası</option><option>Akşam Öncesi</option><option>Akşam Sonrası</option><option>Gece</option></select>
+<input type="number" id="inj-dose" placeholder="Ünite (örn: 10)">
+</div>
+<input type="datetime-local" id="inj-datetime">
+<label>Bölge Seçin</label>
+<div class="region-grid" id="inj-regions">
+<button class="region-btn" data-region="Karın Sağı (Üst)" onclick="selectRegion(this)">Karın Sağı (Üst)</button>
+<button class="region-btn" data-region="Karın Solu (Üst)" onclick="selectRegion(this)">Karın Solu (Üst)</button>
+<button class="region-btn" data-region="Karın Sağı (Alt)" onclick="selectRegion(this)">Karın Sağı (Alt)</button>
+<button class="region-btn" data-region="Karın Solu (Alt)" onclick="selectRegion(this)">Karın Solu (Alt)</button>
+<button class="region-btn" data-region="Sağ Kol" onclick="selectRegion(this)">Sağ Kol</button>
+<button class="region-btn" data-region="Sol Kol" onclick="selectRegion(this)">Sol Kol</button>
+<button class="region-btn" data-region="Sağ Bacak" onclick="selectRegion(this)">Sağ Bacak</button>
+<button class="region-btn" data-region="Sol Bacak" onclick="selectRegion(this)">Sol Bacak</button>
+</div>
+<button class="btn btn-primary" onclick="addInjection()" style="margin-top:12px">Kaydet</button>
+</div>
+<div class="card"><div class="card-title">📍 Bölge Rotasyonu</div>
+<p style="font-size:12px;color:var(--text-light);margin-bottom:10px">💡 Aynı bölgeye 2 gün üst üste yapmayın. Yeşil = güvenli, Kırmızı = son kullanım</p>
+<div id="region-status"></div></div>
+<div class="card"><div class="card-title">📋 Geçmiş</div><div id="inj-list"></div></div>
+</div>
+
+<!-- MEDICINE -->
+<div class="page" id="page-medicine">
+<div class="card-title">💊 İlaç Takibi</div>
+<div class="card">
+<label>Yeni İlaç</label><input type="text" id="med-name" placeholder="İlaç adı">
+<div class="grid-2"><input type="number" id="med-stock" placeholder="Stok (adet)"><input type="text" id="med-dose" placeholder="Doz (örn: 1x1)"></div>
+<button class="btn btn-primary" onclick="addMedicine()">Ekle</button>
+</div>
+<div class="card"><div class="card-title">📦 Mevcut Stok</div><div id="med-list"></div></div>
+</div>
+
+<!-- WATER -->
+<div class="page" id="page-water">
+<div class="card-title">💧 Su Takibi</div>
+<div class="card" style="text-align:center;padding:30px">
+<div style="font-size:64px;margin-bottom:10px" id="water-icon">💧</div>
+<div style="font-size:36px;font-weight:700;color:var(--primary)" id="water-count">0</div>
+<div style="font-size:14px;color:var(--text-light);margin-bottom:20px">/ 8 bardak</div>
+<div class="grid-2"><button class="btn btn-primary" onclick="addWater(1)">+1 Bardak</button><button class="btn btn-outline" onclick="resetWater()">Sıfırla</button></div>
+</div>
+<div class="card"><div class="card-title">📋 Geçmiş</div><div id="water-list"></div></div>
+</div>
+
+<!-- WEIGHT -->
+<div class="page" id="page-weight">
+<div class="card-title">⚖️ Kilo Takibi</div>
+<div class="card">
+<label>Yeni Ölçüm</label>
+<div class="grid-2"><input type="number" id="weight-value" placeholder="Kilo (kg)" step="0.1"><input type="date" id="weight-date"></div>
+<button class="btn btn-primary" onclick="addWeight()">Kaydet</button>
+</div>
+<div class="card"><div class="card-title">📈 Geçmiş</div><div id="weight-list"></div></div>
+</div>
+
+<!-- EXERCISE -->
+<div class="page" id="page-exercise">
+<div class="card-title">🏃 Egzersiz Takibi</div>
+<div class="card">
+<label>Yeni Egzersiz</label>
+<select id="ex-type"><option>Yürüyüş</option><option>Koşu</option><option>Bisiklet</option><option>Yüzme</option><option>Fitness</option><option>Yoga / Pilates</option><option>Ev Egzersizi</option></select>
+<div class="grid-2"><input type="number" id="ex-duration" placeholder="Süre (dakika)"><input type="number" id="ex-steps" placeholder="Adım (varsa)"></div>
+<input type="date" id="ex-date">
+<button class="btn btn-primary" onclick="addExercise()">Kaydet</button>
+<p style="font-size:12px;color:var(--text-light);margin-top:10px">💡 TEMD önerisi: Haftada en az 150 dakika orta şiddetli egzersiz</p>
+</div>
+<div class="card"><div class="card-title">📋 Geçmiş</div><div id="ex-list"></div></div>
+</div>
+
+<!-- FOOTCARE -->
+<div class="page" id="page-footcare">
+<div class="card-title">🦶 Ayak Bakımı</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">📋 Günlük Kontrol Listesi</div>
+<div class="checkbox-item"><input type="checkbox" id="fc1"><label for="fc1" style="margin:0">Her gün ayaklarınıza bakın</label></div>
+<div class="checkbox-item"><input type="checkbox" id="fc2"><label for="fc2" style="margin:0">Nemlendirici sürün (taban hariç)</label></div>
+<div class="checkbox-item"><input type="checkbox" id="fc3"><label for="fc3" style="margin:0">Tırnaklarınızı düz kesin</label></div>
+<div class="checkbox-item"><input type="checkbox" id="fc4"><label for="fc4" style="margin:0">Temiz çorap giyin</label></div>
+<div class="checkbox-item"><input type="checkbox" id="fc5"><label for="fc5" style="margin:0">Uygun ayakkabı kullanın</label></div>
+<div class="checkbox-item"><input type="checkbox" id="fc6"><label for="fc6" style="margin:0">Yanık/kesik/şişlik var mı kontrol edin</label></div>
+<button class="btn btn-secondary" onclick="saveFootCheck()" style="margin-top:10px">Kontrolü Kaydet</button>
+</div>
+<div class="card">
+<div class="card-title">📷 Ayak Fotoğrafı</div>
+<input type="file" id="foot-photo" accept="image/*" onchange="previewFootPhoto(event)">
+<div id="foot-preview" style="margin-top:10px;display:none">
+<img id="foot-img" style="max-width:100%;border-radius:12px">
+<button class="btn btn-primary" onclick="saveFootPhoto()" style="margin-top:10px">Kaydet</button>
+</div>
+</div>
+<div class="card">
+<div class="card-title">⚠️ Uyarı İşaretleri</div>
+<div class="region-grid">
+<div class="region-btn" id="fw-cut" onclick="toggleFootWarn('cut')">🩹 Kesik veya yara</div>
+<div class="region-btn" id="fw-swelling" onclick="toggleFootWarn('swelling')">🔴 Kızarıklık veya şişlik</div>
+<div class="region-btn" id="fw-cold" onclick="toggleFootWarn('cold')">❄️ Soğuk ayak</div>
+<div class="region-btn" id="fw-nail" onclick="toggleFootWarn('nail')">🟡 Sarı tırnak</div>
+</div>
+<div style="margin-top:12px;display:none" id="foot-alert">
+<div class="badge badge-red" style="width:100%;text-align:center;padding:10px">⚠️ Doktora görünmeniz önerilir!</div>
+<button class="btn btn-danger" onclick="callDoctor()" style="margin-top:8px">📞 Doktora Git</button>
+</div>
+</div>
+</div>
+
+<!-- KH CALC -->
+<div class="page" id="page-kh">
+<div class="card-title">🧮 Karbonhidrat Hesaplayıcı</div>
+<div class="card">
+<label>Besin Seçin</label>
+<select id="kh-food" onchange="calcKH()">
+<option value="12">Elma (12% KH)</option>
+<option value="52">Ekmek (beyaz) (52% KH)</option>
+<option value="43">Ekmek (tam buğday) (43% KH)</option>
+<option value="28">Pirinç (pişmiş) (28% KH)</option>
+<option value="25">Makarna (pişmiş) (25% KH)</option>
+<option value="20">Patates (pişmiş) (20% KH)</option>
+<option value="23">Muz (23% KH)</option>
+<option value="5">Süt (5% KH)</option>
+<option value="10">Yoğurt (10% KH)</option>
+<option value="60">Pirinç (çiğ) (60% KH)</option>
+<option value="70">Yulaf (70% KH)</option>
+<option value="12">Portakal (12% KH)</option>
+<option value="15">Üzüm (15% KH)</option>
+<option value="8">Sütlaç (8% KH)</option>
+</select>
+<label>Miktar (gram)</label><input type="number" id="kh-gram" placeholder="100" value="100" oninput="calcKH()">
+<div style="text-align:center;padding:20px;background:#f7fafc;border-radius:12px;margin-top:10px">
+<div style="font-size:14px;color:var(--text-light)">Karbonhidrat</div>
+<div id="kh-result" style="font-size:32px;font-weight:700;color:var(--primary)">12.0 gr KH</div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">📋 Sık Kullanılan Oranlar</div>
+<div style="font-size:13px;line-height:2">
+<div class="food-lib-item"><span>Ekmek (beyaz)</span><span>50-55% KH</span></div>
+<div class="food-lib-item"><span>Ekmek (tam buğday)</span><span>40-45% KH</span></div>
+<div class="food-lib-item"><span>Pirinç (pişmiş)</span><span>28% KH</span></div>
+<div class="food-lib-item"><span>Makarna (pişmiş)</span><span>25% KH</span></div>
+<div class="food-lib-item"><span>Patates (pişmiş)</span><span>20% KH</span></div>
+<div class="food-lib-item"><span>Elma</span><span>12% KH</span></div>
+<div class="food-lib-item"><span>Muz</span><span>23% KH</span></div>
+<div class="food-lib-item"><span>Süt</span><span>5% KH</span></div>
+</div>
+</div>
+</div>
+
+<!-- FOOD LIB -->
+<div class="page" id="page-foodlib">
+<div class="card-title">🍎 Besin Kütüphanesi & Glisemik İndeks</div>
+<div class="card">
+<input type="text" id="food-search" placeholder="Besin ara..." oninput="filterFood()">
+<div id="food-list" style="margin-top:10px">
+<div class="food-lib-item"><span>🍎 Elma</span><span class="gi-low">GI: 36 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍌 Muz</span><span class="gi-low">GI: 51 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍇 Üzüm</span><span class="gi-med">GI: 59 (Orta)</span></div>
+<div class="food-lib-item"><span>🍉 Karpuz</span><span class="gi-high">GI: 72 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🍞 Beyaz Ekmek</span><span class="gi-high">GI: 75 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🥖 Tam Buğday Ekmek</span><span class="gi-med">GI: 54 (Orta)</span></div>
+<div class="food-lib-item"><span>🍚 Pirinç (beyaz)</span><span class="gi-high">GI: 73 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🌾 Bulgur</span><span class="gi-low">GI: 48 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍝 Makarna</span><span class="gi-med">GI: 49 (Orta)</span></div>
+<div class="food-lib-item"><span>🥔 Patates (haşlama)</span><span class="gi-high">GI: 78 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🥔 Patates (fırın)</span><span class="gi-med">GI: 56 (Orta)</span></div>
+<div class="food-lib-item"><span>🥣 Yulaf ezmesi</span><span class="gi-low">GI: 55 (Düşük)</span></div>
+<div class="food-lib-item"><span>🫘 Mercimek</span><span class="gi-low">GI: 32 (Düşük)</span></div>
+<div class="food-lib-item"><span>🥛 Süt</span><span class="gi-low">GI: 31 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍫 Çikolata (bitter)</span><span class="gi-low">GI: 23 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍯 Bal</span><span class="gi-med">GI: 58 (Orta)</span></div>
+<div class="food-lib-item"><span>🥤 Meyve suyu</span><span class="gi-high">GI: 68 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🍬 Şeker (sukroz)</span><span class="gi-high">GI: 65 (Yüksek)</span></div>
+<div class="food-lib-item"><span>🥕 Havuç (haşlama)</span><span class="gi-med">GI: 49 (Orta)</span></div>
+<div class="food-lib-item"><span>🥦 Brokoli</span><span class="gi-low">GI: 10 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍅 Domates</span><span class="gi-low">GI: 38 (Düşük)</span></div>
+<div class="food-lib-item"><span>🥒 Salatalık</span><span class="gi-low">GI: 15 (Düşük)</span></div>
+<div class="food-lib-item"><span>🫐 Yaban Mersini</span><span class="gi-low">GI: 53 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍑 Şeftali</span><span class="gi-low">GI: 42 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍐 Armut</span><span class="gi-low">GI: 38 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍊 Portakal</span><span class="gi-low">GI: 43 (Düşük)</span></div>
+<div class="food-lib-item"><span>🥜 Fındık</span><span class="gi-low">GI: 15 (Düşük)</span></div>
+<div class="food-lib-item"><span>🫒 Zeytin</span><span class="gi-low">GI: 0 (Düşük)</span></div>
+<div class="food-lib-item"><span>🧀 Peynir</span><span class="gi-low">GI: 0 (Düşük)</span></div>
+<div class="food-lib-item"><span>🍳 Yumurta</span><span class="gi-low">GI: 0 (Düşük)</span></div>
+</div>
+</div>
+</div>
+
+<!-- NEWS -->
+<div class="page" id="page-news">
+<div class="card-title">📰 Diyabet Haberleri</div>
+<div class="news-card" onclick="openNews(0)" style="cursor:pointer"><div style="font-weight:600">Yapay Pankreas Sisteminde Yeni Gelişme</div><div style="font-size:13px;margin-top:4px">Karmaşık algoritmalar sayesinde insülin dozları otomatik ayarlanıyor. Yeni nesil cihazlar 2025 sonunda Türkiye'de...</div><div style="font-size:11px;color:var(--text-light);margin-top:4px">26 Temmuz 2026</div></div>
+<div class="news-card" onclick="openNews(1)" style="cursor:pointer"><div style="font-weight:600">Diyabet ve COVID-19: Son Bilgiler</div><div style="font-size:13px;margin-top:4px">Diyabetlilerde aşı etkinliği ve güncel korunma stratejileri hakkında TEMD açıklaması...</div><div style="font-size:11px;color:var(--text-light);margin-top:4px">24 Temmuz 2026</div></div>
+<div class="news-card" onclick="openNews(2)" style="cursor:pointer"><div style="font-weight:600">Yeni Oral İlaç Onayı</div><div style="font-size:13px;margin-top:4px">FDA tarafından onaylanan yeni SGLT2 inhibitörü, kalp yetmezliği riskini %30 azalttı...</div><div style="font-size:11px;color:var(--text-light);margin-top:4px">20 Temmuz 2026</div></div>
+<div class="news-card" onclick="openNews(3)" style="cursor:pointer"><div style="font-weight:600">Diyabetli Çocuklar İçin Kamp Dönemi Başlıyor</div><div style="font-size:13px;margin-top:4px">Türkiye Diyabet Vakfı yaz kampı kayıtları başladı. Eğitim, eğlence ve sosyalleşme...</div><div style="font-size:11px;color:var(--text-light);margin-top:4px">18 Temmuz 2026</div></div>
+</div>
+
+<!-- HbA1c -->
+<div class="page" id="page-hba1c">
+<div class="card-title">🧪 HbA1c Takibi</div>
+<div class="card">
+<label>Yeni Ölçüm</label>
+<div class="grid-2"><input type="number" id="hba1c-value" placeholder="Değer (%6.5)" step="0.1"><input type="date" id="hba1c-date"></div>
+<button class="btn btn-primary" onclick="addHbA1c()">Kaydet</button>
+<p style="font-size:12px;color:var(--text-light);margin-top:10px">💡 Hedef: %6.5 - %7 arası</p>
+</div>
+<div class="card"><div class="card-title">📈 Geçmiş</div><div id="hba1c-list"></div></div>
+</div>
+
+<!-- BP -->
+<div class="page" id="page-bp">
+<div class="card-title">🩺 Tansiyon Takibi</div>
+<div class="card">
+<label>Yeni Ölçüm</label>
+<div class="grid-2"><input type="number" id="bp-sys" placeholder="Büyük (sistolik)"><input type="number" id="bp-dia" placeholder="Küçük (diastolik)"></div>
+<input type="date" id="bp-date">
+<button class="btn btn-primary" onclick="addBP()">Kaydet</button>
+<p style="font-size:12px;color:var(--text-light);margin-top:10px">💡 Hedef: 120/80 mmHg altı</p>
+</div>
+<div class="card"><div class="card-title">📈 Geçmiş</div><div id="bp-list"></div></div>
+</div>
+
+<!-- EDUCATION -->
+<div class="page" id="page-education">
+<div class="card-title">🎓 Eğitim İçerikleri (TEMD/ADA Onaylı)</div>
+<div class="education-card" onclick="openEducation(0)" style="cursor:pointer"><span class="education-tag">TEMD Onaylı</span><div style="font-weight:600;margin-bottom:4px">1. Diyabet Nedir ve Nasıl Yönetilir?</div><div style="font-size:13px;color:var(--text-light)">Tip 1 ve Tip 2 diyabetin farkları, insülin direnci, kan şekeri hedefleri ve günlük yaşam stratejileri.</div></div>
+<div class="education-card" onclick="openEducation(1)" style="cursor:pointer"><span class="education-tag">ADA Onaylı</span><div style="font-weight:600;margin-bottom:4px">2. Hipoglisemi ve Hiperglisemi: Acil Müdahale</div><div style="font-size:13px;color:var(--text-light)">Düşük ve yüksek şeker belirtileri, 15-15 kuralı, glucagon kullanımı ve ne zaman 112'yi aramalısınız.</div></div>
+<div class="education-card" onclick="openEducation(2)" style="cursor:pointer"><span class="education-tag">TEMD Onaylı</span><div style="font-weight:600;margin-bottom:4px">3. Beslenme ve Karbonhidrat Sayımı</div><div style="font-size:13px;color:var(--text-light)">Glisemik indeks, porsiyon kontrolü, etiket okuma ve kişiselleştirilmiş beslenme planı oluşturma.</div></div>
+<div class="education-card" onclick="openEducation(3)" style="cursor:pointer"><span class="education-tag">ADA Onaylı</span><div style="font-weight:600;margin-bottom:4px">4. Egzersiz ve Diyabet</div><div style="font-size:13px;color:var(--text-light)">Egzersiz öncesi/sonrası şeker kontrolü, insülin ayarları, güvenli aktivite önerileri.</div></div>
+<div class="education-card" onclick="openEducation(4)" style="cursor:pointer"><span class="education-tag">TEMD Onaylı</span><div style="font-weight:600;margin-bottom:4px">5. Diyabetik Ayak ve Komplikasyonlar</div><div style="font-size:13px;color:var(--text-light)">Günlük ayak bakımı, uygun ayakkabı seçimi, nöropati belirtileri ve erken müdahale.</div></div>
+<div class="education-card" onclick="openEducation(5)" style="cursor:pointer"><span class="education-tag">TEMD + ADA Onaylı</span><div style="font-weight:600;margin-bottom:4px">6. Teknoloji ve Diyabet: CGM, Pompa ve Yapay Pankreas</div><div style="font-size:13px;color:var(--text-light)">Sürekli glukoz monitörleri, insülin pompaları, kapalı döngü sistemler ve gelecekteki teknolojiler.</div></div>
+</div>
+
+<!-- VIDEOS -->
+<div class="page" id="page-videos">
+<div class="card-title">🎥 Eğitim Videoları</div>
+<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:6px">🎬 1. İnsülin Enjeksiyon Tekniği</div><div style="font-size:13px;color:var(--text-light);margin-bottom:8px">Prof. Dr. Ahmet Y. | Endokrinoloji Uzmanı</div><div style="background:#000;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;cursor:pointer" onclick="openVideo(0)">▶️</div></div>
+<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:6px">🎬 2. Kan Şekeri Ölçümü ve Hedefler</div><div style="font-size:13px;color:var(--text-light);margin-bottom:8px">Prof. Dr. Selin K. | İç Hastalıkları Uzmanı</div><div style="background:#000;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;cursor:pointer" onclick="openVideo(1)">▶️</div></div>
+<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:6px">🎬 3. Hipoglisemi Anında Ne Yapmalı?</div><div style="font-size:13px;color:var(--text-light);margin-bottom:8px">Doç. Dr. Mehmet R. | Acil Tıp Uzmanı</div><div style="background:#000;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;cursor:pointer" onclick="openVideo(2)">▶️</div></div>
+<div class="card"><div style="font-size:14px;font-weight:600;margin-bottom:6px">🎬 4. Diyabetik Beslenme: Pratik Öneriler</div><div style="font-size:13px;color:var(--text-light);margin-bottom:8px">Diyetisyen Zeynep A. | Klinik Beslenme Uzmanı</div><div style="background:#000;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;cursor:pointer" onclick="openVideo(3)">▶️</div></div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div class="page" id="page-appointments">
+<div class="card-title">📅 Randevu Takvimi</div>
+<div class="card">
+<label>Yeni Randevu</label>
+<select id="app-type"><option>Endokrinoloji</option><option>Göz Doktoru (Oftalmoloji)</option><option>Ayak Sağlığı (Podiatrist)</option><option>Böbrek (Nefroloji)</option><option>Diyetisyen</option><option>Diş Hekimi</option></select>
+<div class="grid-2"><input type="date" id="app-date"><input type="time" id="app-time"></div>
+<input type="text" id="app-doctor" placeholder="Doktor adı (opsiyonel)">
+<button class="btn btn-primary" onclick="addAppointment()">Ekle</button>
+</div>
+<div class="card"><div class="card-title">📋 Yaklaşan Randevular</div><div id="app-list"></div></div>
+</div>
+
+<!-- EMERGENCY -->
+<div class="page" id="page-emergency">
+<div class="card-title">🚨 Acil Durum</div>
+<button class="emergency-btn emergency-112" onclick="callNumber('112')">📞 112'yi Ara</button>
+<div class="card">
+<div class="card-title">👨‍👩‍👧 Hızlı Aile Araması</div>
+<button class="emergency-btn emergency-family" onclick="callContact('mother')" id="btn-mother">📞 Annemi Ara</button>
+<button class="emergency-btn emergency-family" onclick="callContact('father')" id="btn-father">📞 Babamı Ara</button>
+<button class="emergency-btn emergency-family" onclick="callContact('spouse')" id="btn-spouse">📞 Eşimi Ara</button>
+<button class="emergency-btn emergency-family" onclick="callContact('sibling')" id="btn-sibling">📞 Kardeşimi Ara</button>
+<button class="emergency-btn emergency-family" onclick="callContact('doctor')" id="btn-doctor">📞 Doktorumu Ara</button>
+</div>
+<div class="card">
+<div class="card-title">⚡ Hızlı Bilgiler</div>
+<div style="font-size:13px;line-height:1.8">
+<p><strong>Hipoglisemi (Düşük Şeker):</strong></p>
+<p>• 15 gr hızlı karbonhidrat alın (3 şeker, 150ml meyve suyu)</p>
+<p>• 15 dk sonra tekrar ölçün</p>
+<p>• Bilinç kaybı varsa YAN ÇEVİRİN, 112'yi arayın</p><br>
+<p><strong>Hiperglisemi (Yüksek Şeker):</strong></p>
+<p>• Bol su için</p>
+<p>• Keton testi yapın</p>
+<p>• 300+ ve keton varsa acil servise gidin</p>
+</div>
+</div>
+</div>
+
+<!-- VOICE -->
+<div class="page" id="page-voice">
+<div class="card-title">🎙️ Sesli Komut</div>
+<div style="text-align:center;padding:20px">
+<p style="color:var(--text-light);margin-bottom:10px;font-size:14px">"LANU ... Ara" diyerek hızlı arama yapabilirsiniz</p>
+<div style="background:#ebf8ff;color:var(--primary);padding:10px 16px;border-radius:10px;font-size:12px;margin-bottom:20px;display:inline-block">💡 Mikrofona dokunup konuşun. Tarayıcılar sürekli arka plan dinlemeyi desteklemez.</div>
+<button class="voice-btn" onclick="startVoice()">🎤</button>
+<p id="voice-status" style="color:var(--text-light);font-size:14px;margin-top:10px">Dinlemek için mikrofona dokunun</p>
+</div>
+<div class="card">
+<div class="card-title">💡 Örnek Komutlar</div>
+<div style="font-size:14px;line-height:2">
+<div class="list-item"><span>"LANU 112 Ara"</span><span>🚨</span></div>
+<div class="list-item"><span>"LANU Annemi Ara"</span><span>👩</span></div>
+<div class="list-item"><span>"LANU Babamı Ara"</span><span>👨</span></div>
+<div class="list-item"><span>"LANU Eşimi Ara"</span><span>💑</span></div>
+<div class="list-item"><span>"LANU Doktorumu Ara"</span><span>🩺</span></div>
+<div class="list-item"><span>"LANU Kan Şekeri Ekle"</span><span>🩸</span></div>
+<div class="list-item"><span>"LANU İğne Ekle"</span><span>💉</span></div>
+</div>
+</div>
+</div>
+
+<!-- CAREGIVER -->
+<div class="page" id="page-caregiver">
+<div class="card-title">👁️ Bakıcı / Aile Modu</div>
+<div class="caregiver-live">
+<div style="font-size:18px;font-weight:700;margin-bottom:8px"><span class="live-indicator"></span>Canlı Takip</div>
+<div id="caregiver-status" style="font-size:14px;color:var(--text-light)">Bağlantı kuruluyor...</div>
+</div>
+<div class="card" style="margin-top:12px">
+<div class="card-title">📊 Son Veriler</div>
+<div class="grid-2">
+<div style="text-align:center;padding:10px"><div style="font-size:24px">🩸</div><div style="font-size:12px;color:var(--text-light)">Son Şeker</div><div id="cg-sugar" style="font-size:20px;font-weight:700">--</div></div>
+<div style="text-align:center;padding:10px"><div style="font-size:24px">💉</div><div style="font-size:12px;color:var(--text-light)">Son İğne</div><div id="cg-inj" style="font-size:20px;font-weight:700">--</div></div>
+<div style="text-align:center;padding:10px"><div style="font-size:24px">💧</div><div style="font-size:12px;color:var(--text-light)">Su</div><div id="cg-water" style="font-size:20px;font-weight:700">--</div></div>
+<div style="text-align:center;padding:10px"><div style="font-size:24px">💊</div><div style="font-size:12px;color:var(--text-light)">İlaç</div><div id="cg-med" style="font-size:20px;font-weight:700">--</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">📤 WhatsApp ile Paylaş</div>
+<p style="font-size:13px;color:var(--text-light);margin-bottom:10px">Günlük özet raporu aile üyesiyle paylaşın</p>
+<button class="btn btn-secondary" onclick="shareWhatsApp()">📱 WhatsApp'ta Paylaş</button>
+</div>
+</div>
+
+<!-- DAY SUMMARY -->
+<div class="page" id="page-day-summary">
+<div class="card-title">🌙 Gün Sonu Özeti</div>
+<div class="card" style="text-align:center;padding:30px">
+<div class="summary-ring">
+<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="8"/><circle id="summary-ring" cx="60" cy="60" r="52" fill="none" stroke="#48BB78" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .5s"/></svg>
+<div id="summary-percent" style="font-size:28px;font-weight:700;color:var(--primary);margin-top:-90px">0%</div>
+<div style="font-size:12px;color:var(--text-light);margin-top:70px">Günlük Hedef Tamamlama</div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">📊 Bugünkü Veriler</div>
+<div style="font-size:14px;line-height:2">
+<div class="list-item"><span>🩸 Kan Şekeri Ölçümü</span><span id="sum-sugar">0</span></div>
+<div class="list-item"><span>💉 İğne</span><span id="sum-inj">0 ünite</span></div>
+<div class="list-item"><span>💧 Su</span><span id="sum-water">0/8</span></div>
+<div class="list-item"><span>💊 İlaç</span><span id="sum-med">0</span></div>
+<div class="list-item"><span>🏃 Egzersiz</span><span id="sum-ex">0 dk</span></div>
+<div class="list-item"><span>🦶 Ayak Bakımı</span><span id="sum-foot">❌</span></div>
+</div>
+</div>
+<div class="card"><div class="motivation-text" id="motivation">"Her gün küçük bir adım, büyük bir sağlık demektir. Yarın daha iyisi için devam!"</div></div>
+<button class="btn btn-primary" onclick="shareDaySummary()">📤 Raporu Paylaş</button>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+<div class="card-title">⚙️ Ayarlar</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">🔔 Bildirimler</div>
+<div class="toggle"><span>İlaç Hatırlatıcı</span><div class="switch" onclick="toggleSwitch(this,'medAlert')"></div></div>
+<div class="toggle"><span>İğne Hatırlatıcı</span><div class="switch" onclick="toggleSwitch(this,'injAlert')"></div></div>
+<div class="toggle"><span>Su Hatırlatıcı</span><div class="switch" onclick="toggleSwitch(this,'waterAlert')"></div></div>
+<div class="toggle"><span>Ayak Bakımı Hatırlatıcı</span><div class="switch" onclick="toggleSwitch(this,'footAlert')"></div></div>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">⏰ İğne Saatleri</div>
+<p style="font-size:12px;color:var(--text-light);margin-bottom:10px">Hatırlatıcı almak istediğiniz saatleri ayarlayın:</p>
+<div class="time-row"><input type="time" id="inj-time-1" value="08:00"><input type="time" id="inj-time-2" value="13:00"></div>
+<div class="time-row"><input type="time" id="inj-time-3" value="19:00"><input type="time" id="inj-time-4" value="23:00"></div>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">🔊 Sesli Uyarı</div>
+<div class="toggle"><span>Sesli Bildirimler</span><div class="switch" onclick="toggleSwitch(this,'soundAlert')"></div></div>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">🌙 Görünüm</div>
+<div class="toggle"><span>Karanlık Mod</span><div class="switch" onclick="toggleSwitch(this,'darkMode')" id="dark-switch"></div></div>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">✈️ Seyahat Modu</div>
+<div class="toggle"><span>Seyahat Modu (Saat Dilimi)</span><div class="switch" onclick="toggleSwitch(this,'travelMode')"></div></div>
+<p style="font-size:12px;color:var(--text-light);margin-top:6px">Saat dilimi değişikliklerinde insülin saatlerini otomatik ayarlar.</p>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">📱 WhatsApp Hatırlatıcı</div>
+<p style="font-size:13px;color:var(--text-light);margin-bottom:10px">Kendi WhatsApp'ınıza hatırlatıcı mesaj gönderin:</p>
+<button class="btn btn-secondary" onclick="sendWhatsAppSelf('💉 İğne vaktim geldi!')" style="margin-bottom:8px">💉 İğne Hatırlatıcı Gönder</button>
+<button class="btn btn-secondary" onclick="sendWhatsAppSelf('💊 İlacımı almam gerekiyor!')" style="margin-bottom:8px">💊 İlaç Hatırlatıcı Gönder</button>
+<button class="btn btn-secondary" onclick="sendWhatsAppSelf('💧 Su içmem gerekiyor!')">💧 Su Hatırlatıcı Gönder</button>
+</div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+<div class="card-title">👤 Profil</div>
+<div class="card">
+<div style="text-align:center;margin-bottom:16px">
+<div style="width:80px;height:80px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 10px">👤</div>
+<div id="profile-name" style="font-size:20px;font-weight:700">-</div>
+<div id="profile-email" style="font-size:13px;color:var(--text-light)">-</div>
+</div>
+<div style="font-size:14px;line-height:2">
+<div class="list-item"><span>Yaş</span><span id="profile-age">-</span></div>
+<div class="list-item"><span>Boy</span><span id="profile-height">-</span></div>
+<div class="list-item"><span>Kilo</span><span id="profile-weight">-</span></div>
+<div class="list-item"><span>Diyabet Tipi</span><span id="profile-type">-</span></div>
+<div class="list-item"><span>Telefon</span><span id="profile-phone">-</span></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">🔒 Oturum</div>
+<button class="btn btn-outline" onclick="logout()" style="margin-bottom:10px">Oturumu Kapat</button>
+</div>
+<div class="card">
+<div class="card-title" style="font-size:16px">📁 Veri Yönetimi</div>
+<button class="btn btn-outline" onclick="exportData()" style="margin-bottom:10px">Verileri Dışa Aktar</button>
+<button class="btn btn-danger" onclick="clearAllData()">Tüm Verileri Sil</button>
+</div>
+</div>
+
+<!-- OTHER MENU -->
+<div class="page" id="page-menu">
+<div class="card-title">📋 Tüm Modüller</div>
+<div class="menu-grid">
+<div class="menu-item" onclick="navigate('page-sugar')"><div class="menu-item-icon">🩸</div><div class="menu-item-text">Kan Şekeri</div></div>
+<div class="menu-item" onclick="navigate('page-injection')"><div class="menu-item-icon">💉</div><div class="menu-item-text">İğne Takibi</div></div>
+<div class="menu-item" onclick="navigate('page-medicine')"><div class="menu-item-icon">💊</div><div class="menu-item-text">İlaç Takibi</div></div>
+<div class="menu-item" onclick="navigate('page-water')"><div class="menu-item-icon">💧</div><div class="menu-item-text">Su Takibi</div></div>
+<div class="menu-item" onclick="navigate('page-weight')"><div class="menu-item-icon">⚖️</div><div class="menu-item-text">Kilo Takibi</div></div>
+<div class="menu-item" onclick="navigate('page-exercise')"><div class="menu-item-icon">🏃</div><div class="menu-item-text">Egzersiz</div></div>
+<div class="menu-item" onclick="navigate('page-footcare')"><div class="menu-item-icon">🦶</div><div class="menu-item-text">Ayak Bakımı</div></div>
+<div class="menu-item" onclick="navigate('page-kh')"><div class="menu-item-icon">🧮</div><div class="menu-item-text">KH Hesaplayıcı</div></div>
+<div class="menu-item" onclick="navigate('page-foodlib')"><div class="menu-item-icon">🍎</div><div class="menu-item-text">Besin Kütüphanesi</div></div>
+<div class="menu-item" onclick="navigate('page-news')"><div class="menu-item-icon">📰</div><div class="menu-item-text">Haberler</div></div>
+<div class="menu-item" onclick="navigate('page-hba1c')"><div class="menu-item-icon">🧪</div><div class="menu-item-text">HbA1c</div></div>
+<div class="menu-item" onclick="navigate('page-bp')"><div class="menu-item-icon">🩺</div><div class="menu-item-text">Tansiyon</div></div>
+<div class="menu-item" onclick="navigate('page-education')"><div class="menu-item-icon">🎓</div><div class="menu-item-text">Eğitim</div></div>
+<div class="menu-item" onclick="navigate('page-videos')"><div class="menu-item-icon">🎥</div><div class="menu-item-text">Videolar</div></div>
+<div class="menu-item" onclick="navigate('page-appointments')"><div class="menu-item-icon">📅</div><div class="menu-item-text">Randevular</div></div>
+<div class="menu-item" onclick="navigate('page-emergency')"><div class="menu-item-icon">🚨</div><div class="menu-item-text">Acil Durum</div></div>
+<div class="menu-item" onclick="navigate('page-voice')"><div class="menu-item-icon">🎙️</div><div class="menu-item-text">Sesli Komut</div></div>
+<div class="menu-item" onclick="navigate('page-caregiver')"><div class="menu-item-icon">👁️</div><div class="menu-item-text">Bakıcı Modu</div></div>
+<div class="menu-item" onclick="navigate('page-day-summary')"><div class="menu-item-icon">🌙</div><div class="menu-item-text">Gün Sonu</div></div>
+<div class="menu-item" onclick="navigate('page-settings')"><div class="menu-item-icon">⚙️</div><div class="menu-item-text">Ayarlar</div></div>
+</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+<button class="nav-item active" onclick="navigate('page-home')" data-target="page-home"><span class="nav-icon">🏠</span><span>Ana Sayfa</span></button>
+<button class="nav-item" onclick="navigate('page-sugar')" data-target="page-sugar"><span class="nav-icon">📊</span><span>Şeker</span></button>
+<button class="nav-item" onclick="navigate('page-injection')" data-target="page-injection"><span class="nav-icon">💉</span><span>İğne</span></button>
+<button class="nav-item" onclick="navigate('page-medicine')" data-target="page-medicine"><span class="nav-icon">💊</span><span>İlaç</span></button>
+<button class="nav-item" onclick="navigate('page-menu')" data-target="page-menu"><span class="nav-icon">☰</span><span>Diğer</span></button>
+</div>
+
+<script>
+// ================= STORAGE =================
+const S = {get:(k,d)=>{try{let v=localStorage.getItem('lanu_'+k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>localStorage.setItem('lanu_'+k,JSON.stringify(v))};
+
+// ================= INIT =================
+let currentRegion = '';
+let selectedFootWarns = new Set();
+
+function init(){
+  const user = S.get('user',null);
+  if(user){showPage('page-home');updateHome();}else{showPage('page-auth');}
+  const s = S.get('settings',{});
+  if(s.darkMode){document.body.classList.add('dark');}
+  setTodayInputs();
+  updateAllLists();addBackButtons();startAlarmSystem();
+  updateRegionStatus();
+  updateCaregiver();
+  updateSummary();
+  updateEmergencyButtons();
+}
+
+function setTodayInputs(){
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().slice(0,5);
+  ['sugar-date','weight-date','ex-date','hba1c-date','bp-date','app-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+  const st=document.getElementById('sugar-time-input');if(st)st.value=now;
+  const dt=document.getElementById('inj-datetime');if(dt){const n=new Date();dt.value=n.toISOString().slice(0,16);}
+}
+
+// ================= NAVIGATION =================
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const nav=document.querySelector('.nav-item[data-target="'+id+'"]');if(nav)nav.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='page-home')updateHome();
+  if(id==='page-day-summary')updateSummary();
+  if(id==='page-caregiver')updateCaregiver();
+}
+function navigate(id){showPage(id);setTimeout(addBackButtons,50);}
+function goBack(){navigate('page-home');}
+function addBackButtons(){
+  document.querySelectorAll('.page').forEach(page=>{
+    if(page.id==='page-auth'||page.id==='page-home'||page.id==='page-menu')return;
+    if(page.querySelector('.back-header'))return;
+    const bar=document.createElement('div');
+    bar.className='back-header';
+    bar.innerHTML='<button onclick="goBack()" style="background:none;border:none;font-size:22px;color:var(--primary);cursor:pointer;padding:8px 12px;border-radius:10px;display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:20px">←</span><span style="font-size:14px;font-weight:600">Geri</span></button>';
+    page.insertBefore(bar,page.firstChild);
+  });
+}
+
+// ================= AUTH =================
+function toggleAuth(){
+  const l=document.getElementById('auth-login');
+  const r=document.getElementById('auth-register');
+  if(l.style.display==='none'){l.style.display='block';r.style.display='none';}
+  else{l.style.display='none';r.style.display='block';}
+}
+function register(){
+  const name=document.getElementById('reg-name').value;
+  const email=document.getElementById('reg-email').value;
+  const pass=document.getElementById('reg-pass').value;
+  const age=document.getElementById('reg-age').value;
+  const h=document.getElementById('reg-height').value;
+  const w=document.getElementById('reg-weight').value;
+  const t=document.getElementById('reg-type').value;
+  if(!name||!email||!pass){toast('Lütfen tüm alanları doldurun');return;}
+  S.set('user',{name,email,pass,age,height:h,weight:w,diabetesType:t,phone:document.getElementById('reg-phone').value});
+  S.set('contacts',{mother:'',father:'',spouse:'',sibling:'',doctor:''});
+  toast('Kayıt başarılı!');
+  showPage('page-home');updateHome();
+}
+function login(){
+  const email=document.getElementById('auth-email').value;
+  const pass=document.getElementById('auth-pass').value;
+  const user=S.get('user',null);
+  if(user&&user.email===email&&user.pass===pass){toast('Giriş başarılı!');showPage('page-home');updateHome();}
+  else{toast('E-posta veya şifre hatalı');}
+}
+function logout(){
+  if(confirm('Oturum kapatılacak. Emin misiniz?')){showPage('page-auth');}
+}
+
+// ================= HOME =================
+function updateHome(){
+  const user=S.get('user',null);
+  if(user){
+    document.getElementById('home-greeting').textContent='Merhaba '+user.name.split(' ')[0];
+    document.getElementById('home-sub').textContent='Tip '+user.diabetesType+' - '+user.age+' yaş';
+    document.getElementById('home-avatar').textContent=user.name.charAt(0).toUpperCase();
+  const mots=["Her gün yeni bir başlangıç!","Küçük adımlar, büyük değişim!","Bugün kendin için bir adım at!","Sağlığın elinde, devam et!","Harika iş çıkarıyorsun!"];
+  document.getElementById('home-motivation').textContent=mots[Math.floor(Math.random()*mots.length)];
+  }
+  const sugars=S.get('sugar',[]);
+  if(sugars.length>0){
+    const last=sugars[sugars.length-1];
+    document.getElementById('home-last-sugar').textContent=last.value+' mg/dL';
+    document.getElementById('home-sugar-time').textContent=last.type+' • '+last.date.slice(0,10);
+    const v=parseFloat(last.value);
+    const el=document.getElementById('home-last-sugar');
+    if(v<70||v>180)el.style.color='var(--danger)';
+    else if(v>140)el.style.color='var(--warning)';
+    else el.style.color='var(--secondary)';
+  }
+  const injs=S.get('injections',[]);
+  const today=new Date().toISOString().split('T')[0];
+  const todayInj=injs.filter(i=>i.datetime&&i.datetime.startsWith(today));
+  const totalUnits=todayInj.reduce((a,b)=>a+(parseFloat(b.dose)||0),0);
+  document.getElementById('home-today-inj').textContent=totalUnits;
+
+  const water=S.get('water',[]);
+  const todayWater=water.filter(w=>w.date===today).reduce((a,b)=>a+(b.count||0),0);
+  document.getElementById('home-water').textContent=todayWater+'/8';
+
+  const meds=S.get('medicines',[]);
+  const totalStock=meds.reduce((a,b)=>a+(parseFloat(b.stock)||0),0);
+  document.getElementById('home-meds').textContent=totalStock;
+  const warn=document.getElementById('home-meds-warning');
+  if(meds.some(m=>(parseFloat(m.stock)||0)<5)){warn.style.display='block';}else{warn.style.display='none';}
+}
+
+// ================= SUGAR =================
+function addSugar(){
+  const val=document.getElementById('sugar-value').value;
+  const type=document.getElementById('sugar-type').value;
+  const date=document.getElementById('sugar-date').value;
+  const time=document.getElementById('sugar-time-input').value;
+  if(!val){toast('Lütfen değer girin');return;}
+  const list=S.get('sugar',[]);
+  list.push({value:val,type,date:date+'T'+time});
+  S.set('sugar',list);
+  toast('Kan şekeri kaydedildi');
+  document.getElementById('sugar-value').value='';
+  updateSugarList();updateHome();
+}
+function updateSugarList(){
+  const list=S.get('sugar',[]).slice().reverse();
+  const el=document.getElementById('sugar-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div>Henüz ölçüm yok</div>';return;}
+  el.innerHTML=list.map((s,i)=>{
+    let badge='';
+    const v=parseFloat(s.value);
+    if(s.type==='Açlık'){if(v<70||v>100)badge='<span class="badge badge-red">Yüksek</span>';else badge='<span class="badge badge-green">Normal</span>';}
+    else if(s.type==='Tokluk'){if(v>140)badge='<span class="badge badge-red">Yüksek</span>';else badge='<span class="badge badge-green">Normal</span>';}
+    return '<div class="list-item"><div><strong>'+s.value+' mg/dL</strong> <span style="font-size:12px;color:var(--text-light)">'+s.type+'</span><br><span style="font-size:11px;color:var(--text-light)">'+s.date.replace('T',' ').slice(0,16)+'</span></div><div>'+badge+'<button class="delete-btn" onclick="deleteSugar('+(S.get('sugar',[]).length-1-i)+')">Sil</button></div></div>';
+  }).join('');
+}
+function deleteSugar(idx){const list=S.get('sugar',[]);list.splice(idx,1);S.set('sugar',list);updateSugarList();updateHome();}
+
+// ================= INJECTION =================
+function selectRegion(btn){
+  document.querySelectorAll('#inj-regions .region-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentRegion=btn.dataset.region;
+}
+function addInjection(){
+  const dose=document.getElementById('inj-dose').value;
+  const meal=document.getElementById('inj-meal').value;
+  const dt=document.getElementById('inj-datetime').value;
+  if(!dose||!currentRegion){toast('Lütfen ünite ve bölge seçin');return;}
+  const list=S.get('injections',[]);
+  list.push({dose,meal,datetime:dt,region:currentRegion});
+  S.set('injections',list);
+  toast('İğne kaydedildi');
+  document.getElementById('inj-dose').value='';
+  currentRegion='';
+  document.querySelectorAll('#inj-regions .region-btn').forEach(b=>b.classList.remove('selected'));
+  updateInjList();updateRegionStatus();updateHome();
+}
+function updateInjList(){
+  const list=S.get('injections',[]).slice().reverse();
+  const el=document.getElementById('inj-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">💉</div>Henüz kayıt yok</div>';return;}
+  el.innerHTML=list.map((s,i)=>'<div class="list-item"><div><strong>'+s.dose+' ünite</strong> <span style="font-size:12px;color:var(--text-light)">'+s.meal+'</span><br><span style="font-size:11px;color:var(--text-light)">'+s.region+' • '+s.datetime.replace('T',' ').slice(0,16)+'</span></div><button class="delete-btn" onclick="deleteInj('+(S.get('injections',[]).length-1-i)+')">Sil</button></div>').join('');
+}
+function deleteInj(idx){const list=S.get('injections',[]);list.splice(idx,1);S.set('injections',list);updateInjList();updateRegionStatus();updateHome();}
+function updateRegionStatus(){
+  const regions=['Karın Sağı (Üst)','Karın Solu (Üst)','Karın Sağı (Alt)','Karın Solu (Alt)','Sağ Kol','Sol Kol','Sağ Bacak','Sol Bacak'];
+  const injs=S.get('injections',[]);
+  const today=new Date().toISOString().split('T')[0];
+  const el=document.getElementById('region-status');
+  if(!el)return;
+  el.innerHTML=regions.map(r=>{
+    const last=injs.slice().reverse().find(i=>i.region===r);
+    let cls='region-btn';let txt=r;
+    if(last){
+      const days=Math.floor((new Date(today)-new Date(last.datetime.split('T')[0]))/(1000*60*60*24));
+      if(days<2){cls+=' danger';txt+=' ⚠️ '+days+' gün';}
+      else{cls+=' safe';txt+=' ✅ '+days+' gün';}
+    }else{cls+=' safe';txt+=' ✅';}
+    return '<div class="'+cls+'" style="margin-bottom:6px;font-size:12px">'+txt+'</div>';
+  }).join('');
+}
+
+// ================= MEDICINE =================
+function addMedicine(){
+  const name=document.getElementById('med-name').value;
+  const stock=document.getElementById('med-stock').value;
+  const dose=document.getElementById('med-dose').value;
+  if(!name||!stock){toast('Lütfen ilaç adı ve stok girin');return;}
+  const list=S.get('medicines',[]);
+  list.push({name,stock,dose});
+  S.set('medicines',list);
+  toast('İlaç eklendi');
+  document.getElementById('med-name').value='';
+  document.getElementById('med-stock').value='';
+  document.getElementById('med-dose').value='';
+  updateMedList();updateHome();
+}
+function updateMedList(){
+  const list=S.get('medicines',[]);
+  const el=document.getElementById('med-list');
+  if(!list.length){el.innerHTML='<div class="empty">Henüz ilaç eklenmemiş</div>';return;}
+  el.innerHTML=list.map((m,i)=>{
+    const s=parseFloat(m.stock)||0;
+    const warn=s<5?'<span class="badge badge-red">STOK AZ!</span>':'';
+    return '<div class="list-item"><div><strong>'+m.name+'</strong> <span style="font-size:12px;color:var(--text-light)">'+m.dose+'</span><br>'+warn+'</div><div><span style="font-weight:700">'+s+' adet</span> <button class="delete-btn" onclick="deleteMed('+i+')">Sil</button></div></div>';
+  }).join('');
+}
+function deleteMed(idx){const list=S.get('medicines',[]);list.splice(idx,1);S.set('medicines',list);updateMedList();updateHome();}
+
+// ================= WATER =================
+function addWater(n){
+  const today=new Date().toISOString().split('T')[0];
+  const list=S.get('water',[]);
+  const existing=list.find(w=>w.date===today);
+  if(existing){existing.count=(existing.count||0)+n;}
+  else{list.push({date:today,count:n});}
+  S.set('water',list);
+  updateWater();updateHome();
+}
+function resetWater(){
+  const today=new Date().toISOString().split('T')[0];
+  const list=S.get('water',[]);
+  const idx=list.findIndex(w=>w.date===today);
+  if(idx>-1){list[idx].count=0;S.set('water',list);}
+  updateWater();updateHome();
+}
+function updateWater(){
+  const today=new Date().toISOString().split('T')[0];
+  const list=S.get('water',[]);
+  const w=list.find(x=>x.date===today);
+  const count=w?w.count:0;
+  document.getElementById('water-count').textContent=count;
+  const icon=document.getElementById('water-icon');
+  if(count>=8)icon.textContent='💧💧';else if(count>=4)icon.textContent='💧';else icon.textContent='💧';
+  const el=document.getElementById('water-list');
+  el.innerHTML=list.slice().reverse().map(x=>'<div class="list-item"><span>'+x.date+'</span><span><strong>'+x.count+'/8</strong> bardak</span></div>').join('');
+}
+
+// ================= WEIGHT =================
+function addWeight(){
+  const val=document.getElementById('weight-value').value;
+  const date=document.getElementById('weight-date').value;
+  if(!val){toast('Lütfen kilo girin');return;}
+  const list=S.get('weight',[]);list.push({value:val,date});S.set('weight',list);
+  toast('Kilo kaydedildi');document.getElementById('weight-value').value='';updateWeightList();
+}
+function updateWeightList(){
+  const list=S.get('weight',[]).slice().reverse();
+  const el=document.getElementById('weight-list');
+  if(!list.length){el.innerHTML='<div class="empty">Henüz kayıt yok</div>';return;}
+  el.innerHTML=list.map((w,i)=>'<div class="list-item"><span>'+w.date+'</span><span><strong>'+w.value+' kg</strong> <button class="delete-btn" onclick="deleteWeight('+(S.get('weight',[]).length-1-i)+')">Sil</button></span></div>').join('');
+}
+function deleteWeight(idx){const list=S.get('weight',[]);list.splice(idx,1);S.set('weight',list);updateWeightList();}
+
+// ================= EXERCISE =================
+function addExercise(){
+  const type=document.getElementById('ex-type').value;
+  const dur=document.getElementById('ex-duration').value;
+  const steps=document.getElementById('ex-steps').value;
+  const date=document.getElementById('ex-date').value;
+  if(!dur){toast('Lütfen süre girin');return;}
+  const list=S.get('exercise',[]);list.push({type,duration:dur,steps,date});S.set('exercise',list);
+  toast('Egzersiz kaydedildi');document.getElementById('ex-duration').value='';document.getElementById('ex-steps').value='';updateExList();
+}
+function updateExList(){
+  const list=S.get('exercise',[]).slice().reverse();
+  const el=document.getElementById('ex-list');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">🏃</div>Henüz kayıt yok</div>';return;}
+  el.innerHTML=list.map((e,i)=>'<div class="list-item"><div><strong>'+e.type+'</strong> <span style="font-size:12px;color:var(--text-light)">'+e.duration+' dk</span><br><span style="font-size:11px;color:var(--text-light)">'+e.date+(e.steps?' • '+e.steps+' adım':'')+'</span></div><button class="delete-btn" onclick="deleteEx('+(S.get('exercise',[]).length-1-i)+')">Sil</button></div>').join('');
+}
+function deleteEx(idx){const list=S.get('exercise',[]);list.splice(idx,1);S.set('exercise',list);updateExList();}
+
+// ================= FOOTCARE =================
+function saveFootCheck(){
+  const checks=[1,2,3,4,5,6].map(i=>document.getElementById('fc'+i).checked);
+  const today=new Date().toISOString().split('T')[0];
+  S.set('footcheck_'+today,checks);
+  toast('Ayak bakımı kaydedildi');
+  updateSummary();
+}
+function previewFootPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){document.getElementById('foot-img').src=ev.target.result;document.getElementById('foot-preview').style.display='block';};
+  reader.readAsDataURL(file);
+}
+function saveFootPhoto(){
+  const img=document.getElementById('foot-img').src;
+  const photos=S.get('footPhotos',[]);photos.push(img);if(photos.length>5)photos.shift();
+  S.set('footPhotos',photos);
+  toast('Fotoğraf kaydedildi');
+  document.getElementById('foot-preview').style.display='none';
+}
+function toggleFootWarn(id){
+  const el=document.getElementById('fw-'+id);
+  if(selectedFootWarns.has(id)){selectedFootWarns.delete(id);el.classList.remove('selected');}
+  else{selectedFootWarns.add(id);el.classList.add('selected');}
+  const alert=document.getElementById('foot-alert');
+  alert.style.display=selectedFootWarns.size>0?'block':'none';
+}
+function callDoctor(){
+  const c=S.get('contacts',{});if(c.doctor){window.location.href='tel:'+c.doctor;}else{toast('Lütfen önce doktor numarası ekleyin');navigate('page-emergency');}
+}
+
+// ================= KH CALC =================
+function calcKH(){
+  const rate=parseFloat(document.getElementById('kh-food').value)||0;
+  const gram=parseFloat(document.getElementById('kh-gram').value)||0;
+  const result=(gram*rate/100).toFixed(1);
+  document.getElementById('kh-result').textContent=result+' gr KH';
+}
+
+// ================= FOOD LIB =================
+function filterFood(){
+  const q=document.getElementById('food-search').value.toLowerCase();
+  const items=document.querySelectorAll('#food-list .food-lib-item');
+  items.forEach(it=>{it.style.display=it.textContent.toLowerCase().includes(q)?'flex':'none';});
+}
+
+// ================= HbA1c =================
+function addHbA1c(){
+  const val=document.getElementById('hba1c-value').value;
+  const date=document.getElementById('hba1c-date').value;
+  if(!val){toast('Lütfen değer girin');return;}
+  const list=S.get('hba1c',[]);list.push({value:val,date});S.set('hba1c',list);
+  toast('HbA1c kaydedildi');document.getElementById('hba1c-value').value='';updateHbA1cList();
+}
+function updateHbA1cList(){
+  const list=S.get('hba1c',[]).slice().reverse();
+  const el=document.getElementById('hba1c-list');
+  if(!list.length){el.innerHTML='<div class="empty">Henüz kayıt yok</div>';return;}
+  el.innerHTML=list.map((h,i)=>'<div class="list-item"><span>'+h.date+'</span><span><strong>%'+h.value+'</strong> <button class="delete-btn" onclick="deleteHbA1c('+(S.get('hba1c',[]).length-1-i)+')">Sil</button></span></div>').join('');
+}
+function deleteHbA1c(idx){const list=S.get('hba1c',[]);list.splice(idx,1);S.set('hba1c',list);updateHbA1cList();}
+
+// ================= BP =================
+function addBP(){
+  const sys=document.getElementById('bp-sys').value;
+  const dia=document.getElementById('bp-dia').value;
+  const date=document.getElementById('bp-date').value;
+  if(!sys||!dia){toast('Lütfen her iki değeri girin');return;}
+  const list=S.get('bp',[]);list.push({sys,dia,date});S.set('bp',list);
+  toast('Tansiyon kaydedildi');document.getElementById('bp-sys').value='';document.getElementById('bp-dia').value='';updateBPList();
+}
+function updateBPList(){
+  const list=S.get('bp',[]).slice().reverse();
+  const el=document.getElementById('bp-list');
+  if(!list.length){el.innerHTML='<div class="empty">Henüz kayıt yok</div>';return;}
+  el.innerHTML=list.map((b,i)=>'<div class="list-item"><span>'+b.date+'</span><span><strong>'+b.sys+'/'+b.dia+'</strong> <button class="delete-btn" onclick="deleteBP('+(S.get('bp',[]).length-1-i)+')">Sil</button></span></div>').join('');
+}
+function deleteBP(idx){const list=S.get('bp',[]);list.splice(idx,1);S.set('bp',list);updateBPList();}
+
+// ================= APPOINTMENTS =================
+function addAppointment(){
+  const type=document.getElementById('app-type').value;
+  const date=document.getElementById('app-date').value;
+  const time=document.getElementById('app-time').value;
+  const doctor=document.getElementById('app-doctor').value;
+  if(!date){toast('Lütfen tarih seçin');return;}
+  const list=S.get('appointments',[]);list.push({type,date,time,doctor});S.set('appointments',list);
+  toast('Randevu eklendi');document.getElementById('app-doctor').value='';updateAppList();
+}
+function updateAppList(){
+  const list=S.get('appointments',[]).sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('app-list');
+  if(!list.length){el.innerHTML='<div class="empty">Henüz randevu yok</div>';return;}
+  const icons={'Endokrinoloji':'🩺','Göz Doktoru (Oftalmoloji)':'👁️','Ayak Sağlığı (Podiatrist)':'🦶','Böbrek (Nefroloji)':'🫘','Diyetisyen':'🥗','Diş Hekimi':'🦷'};
+  el.innerHTML=list.map((a,i)=>'<div class="appointment-card"><div class="appointment-icon">'+(icons[a.type]||'📅')+'</div><div class="appointment-info"><div class="appointment-title">'+a.type+'</div><div class="appointment-date">'+(a.doctor?a.doctor+' • ':'')+a.date+' '+(a.time||'')+'</div></div><button class="delete-btn" onclick="deleteApp('+i+')">Sil</button></div>').join('');
+}
+function deleteApp(idx){const list=S.get('appointments',[]);list.splice(idx,1);S.set('appointments',list);updateAppList();}
+
+// ================= EMERGENCY =================
+function callNumber(num){window.location.href='tel:'+num;}
+function callContact(key){
+  const c=S.get('contacts',{});
+  if(c[key]&&c[key].trim()){window.location.href='tel:'+c[key].trim();}
+  else{toast('Numara tanımlı değil. Ayarlar > Acil Durum Kişileri');}
+}
+function updateEmergencyButtons(){
+  const c=S.get('contacts',{});
+  const map={mother:'Annemi',father:'Babamı',spouse:'Eşimi',sibling:'Kardeşimi',doctor:'Doktorumu'};
+  Object.keys(map).forEach(k=>{
+    const btn=document.getElementById('btn-'+k);
+    if(btn){btn.textContent='📞 '+(c[k]&&c[k].trim()?map[k]+' Ara ('+c[k]+')':map[k]+' Ara (Numara Yok)');}
+  });
+}
+
+// ================= VOICE =================
+function startVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){toast('Tarayıcınız sesli komutu desteklemiyor');return;}
+  const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec=new Speech();rec.lang='tr-TR';rec.interimResults=false;rec.maxAlternatives=1;
+  document.getElementById('voice-status').textContent='Dinleniyor...';
+  rec.onresult=function(e){
+    const text=e.results[0][0].transcript.toLowerCase();
+    document.getElementById('voice-status').textContent='"'+text+'"';
+    processVoice(text);
+  };
+  rec.onerror=function(){document.getElementById('voice-status').textContent='Hata oluştu, tekrar deneyin';};
+  rec.onend=function(){if(document.getElementById('voice-status').textContent==='Dinleniyor...'){document.getElementById('voice-status').textContent='Dinlemek için mikrofona dokunun';}};
+  rec.start();
+}
+function processVoice(text){
+  if(text.includes('112')){callNumber('112');}
+  else if(text.includes('anne')||text.includes('annemi')){callContact('mother');}
+  else if(text.includes('baba')||text.includes('babamı')){callContact('father');}
+  else if(text.includes('eş')||text.includes('eşimi')||text.includes('karım')||text.includes('kocam')){callContact('spouse');}
+  else if(text.includes('kardeş')||text.includes('kardeşimi')){callContact('sibling');}
+  else if(text.includes('doktor')||text.includes('doktorumu')){callContact('doctor');}
+  else if(text.includes('şeker')||text.includes('kan şekeri')){navigate('page-sugar');}
+  else if(text.includes('iğne')||text.includes('insülin')){navigate('page-injection');}
+  else{toast('Komut anlaşılamadı: '+text);}
+}
+
+// ================= CAREGIVER =================
+function updateCaregiver(){
+  const sugars=S.get('sugar',[]);const injs=S.get('injections',[]);const water=S.get('water',[]);const meds=S.get('medicines',[]);
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('cg-sugar').textContent=sugars.length? sugars[sugars.length-1].value+' mg/dL':'--';
+  document.getElementById('cg-inj').textContent=injs.length? injs[injs.length-1].dose+' ünite':'--';
+  const tw=water.find(w=>w.date===today);document.getElementById('cg-water').textContent=tw?tw.count+'/8':'0/8';
+  const totalStock=meds.reduce((a,b)=>a+(parseFloat(b.stock)||0),0);document.getElementById('cg-med').textContent=totalStock+' adet';
+  document.getElementById('caregiver-status').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR');
+}
+function shareWhatsApp(){
+  const today=new Date().toISOString().split('T')[0];
+  const sugars=S.get('sugar',[]);const injs=S.get('injections',[]);const water=S.get('water',[]);const ex=S.get('exercise',[]);
+  const lastSugar=sugars.length?sugars[sugars.length-1].value:'--';
+  const todayInj=injs.filter(i=>i.datetime&&i.datetime.startsWith(today)).reduce((a,b)=>a+(parseFloat(b.dose)||0),0);
+  const tw=water.find(w=>w.date===today);const wc=tw?tw.count:0;
+  const todayEx=ex.filter(e=>e.date===today).reduce((a,b)=>a+(parseFloat(b.duration)||0),0);
+  const text='LANU Günlük Özet ('+today+'):%0A🩸 Son Şeker: '+lastSugar+'%0A💉 Bugün İğne: '+todayInj+' ünite%0A💧 Su: '+wc+'/8 bardak%0A🏃 Egzersiz: '+todayEx+' dk';
+  window.open('https://wa.me/?text='+text,'_blank');
+}
+
+// ================= DAY SUMMARY =================
+function updateSummary(){
+  const today=new Date().toISOString().split('T')[0];
+  const sugars=S.get('sugar',[]);const injs=S.get('injections',[]);const water=S.get('water',[]);const meds=S.get('medicines',[]);const ex=S.get('exercise',[]);
+  const sc=sugars.filter(s=>s.date&&s.date.startsWith(today)).length;
+  const ic=injs.filter(i=>i.datetime&&i.datetime.startsWith(today)).reduce((a,b)=>a+(parseFloat(b.dose)||0),0);
+  const tw=water.find(w=>w.date===today);const wc=tw?tw.count:0;
+  const mc=meds.length;
+  const ec=ex.filter(e=>e.date===today).reduce((a,b)=>a+(parseFloat(b.duration)||0),0);
+  const fc=S.get('footcheck_'+today,null);
+  const footDone=fc&&fc.every(Boolean);
+  document.getElementById('sum-sugar').textContent=sc+' ölçüm';
+  document.getElementById('sum-inj').textContent=ic+' ünite';
+  document.getElementById('sum-water').textContent=wc+'/8';
+  document.getElementById('sum-med').textContent=mc+' ilaç';
+  document.getElementById('sum-ex').textContent=ec+' dk';
+  document.getElementById('sum-foot').textContent=footDone?'✅ Tamamlandı':'❌ Yapılmadı';
+
+  let score=0;
+  if(sc>0)score+=20;if(ic>0)score+=20;if(wc>=8)score+=20;else if(wc>=4)score+=10;if(ec>0)score+=20;if(footDone)score+=20;
+  document.getElementById('summary-percent').textContent=score+'%';
+  const ring=document.getElementById('summary-ring');
+  if(ring){const offset=326.73-(326.73*score/100);ring.style.strokeDashoffset=offset;}
+
+  const texts=["Bugün harika bir başlangıç yaptınız!","Her adım önemli, devam edin!","Sağlığınız için harika bir gün!","Kendinizle gurur duyun!","Mükemmel ilerleme!"];
+  document.getElementById('motivation').textContent=texts[Math.floor(Math.random()*texts.length)];
+}
+function shareDaySummary(){
+  const today=new Date().toISOString().split('T')[0];
+  const text='LANU Gün Sonu Özeti ('+today+'):%0A'+document.getElementById('sum-sugar').textContent+'%0A'+document.getElementById('sum-inj').textContent+'%0A'+document.getElementById('sum-water').textContent+'%0A'+document.getElementById('sum-ex').textContent;
+  window.open('https://wa.me/?text='+text,'_blank');
+}
+
+// ================= SETTINGS =================
+function toggleSwitch(el,key){
+  el.classList.toggle('on');
+  const s=S.get('settings',{});s[key]=el.classList.contains('on');S.set('settings',s);
+  if(key==='darkMode'){if(s.darkMode)document.body.classList.add('dark');else document.body.classList.remove('dark');}
+}
+function loadSettings(){
+  const s=S.get('settings',{});
+  if(s.darkMode){document.body.classList.add('dark');document.getElementById('dark-switch').classList.add('on');}
+}
+
+// ================= PROFILE =================
+function updateProfile(){
+  const user=S.get('user',null);if(!user)return;
+  document.getElementById('profile-name').textContent=user.name;
+  document.getElementById('profile-email').textContent=user.email;
+  document.getElementById('profile-age').textContent=(user.age||'-')+' yaş';
+  document.getElementById('profile-height').textContent=(user.height||'-')+' cm';
+  document.getElementById('profile-weight').textContent=(user.weight||'-')+' kg';
+  document.getElementById('profile-type').textContent='Tip '+user.diabetesType;
+  document.getElementById('profile-phone').textContent=user.phone||'-';
+}
+function exportData(){
+  const data={};
+  ['user','sugar','injections','medicines','water','weight','exercise','hba1c','bp','appointments','settings','contacts'].forEach(k=>{data[k]=S.get(k,null);});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='lanu-yedek-'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(url);
+  toast('Veriler dışa aktarıldı');
+}
+function clearAllData(){
+  if(confirm('TÜM veriler silinecek. Bu işlem geri alınamaz!')){
+    ['user','sugar','injections','medicines','water','weight','exercise','hba1c','bp','appointments','settings','contacts','footPhotos'].forEach(k=>localStorage.removeItem('lanu_'+k));
+    toast('Tüm veriler silindi');showPage('page-auth');
+  }
+}
+
+// ================= UTILS =================
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+function hideSplash(){
+  const s=document.getElementById('splash');s.style.opacity='0';
+  setTimeout(()=>s.style.display='none',600);
+}
+function updateAllLists(){
+  updateSugarList();updateInjList();updateMedList();updateWater();updateWeightList();updateExList();
+  updateHbA1cList();updateBPList();updateAppList();updateProfile();loadSettings();
+}
+
+
+// ================= MODAL FUNCTIONS =================
+const newsData=[
+{title:"Yapay Pankreas Sisteminde Yeni Gelişme",date:"26 Temmuz 2026",body:"Karmaşık algoritmalar sayesinde insülin dozları otomatik ayarlanıyor. Yeni nesil cihazlar 2025 sonunda Türkiye'de piyasaya sürülecek. Bu sistemler; sürekli glukoz monitörü (CGM), insülin pompası ve kontrol algoritmasından oluşan kapalı döngü sistemlerdir. Hastaların günlük yaşam kalitesini önemli ölçüde artırması ve hipoglisemi riskini azaltması bekleniyor. TEMD tarafından onaylanan klinik çalışmalarda, HbA1c değerlerinde ortalama %0.5 iyileşme görüldü."},
+{title:"Diyabet ve COVID-19: Son Bilgiler",date:"24 Temmuz 2026",body:"Diyabetlilerde aşı etkinliği ve güncel korunma stratejileri hakkında TEMD açıklaması yayınlandı. Yapılan araştırmalar, diyabetli bireylerde COVID-19 aşılarının genel popülasyona benzer etkinlik gösterdiğini ortaya koydu. Ancak bağışıklık yanıtının Tip 1 diyabetlilerde hafifçe düşük olabileceği belirtildi. Güncel öneriler: yıllık grip aşısı, COVID-19 hatırlatma dozu ve pnömokok aşısının tamamlanması."},
+{title:"Yeni Oral İlaç Onayı",date:"20 Temmuz 2026",body:"FDA tarafından onaylanan yeni SGLT2 inhibitörü, kalp yetmezliği riskini %30 azalttı. Empagliflozin'in yeni endikasyonu kapsamında, eGFR değeri 30 mL/min/1.73m² üzerindeki Tip 2 diyabetli hastalarda kardiyovasküler koruma sağlandığı gösterildi. Türkiye'de de yakında ruhsat başvurusu yapılacak. Yan etkiler: idrar yolu enfeksiyonları, genital mantar enfeksiyonları. Yeterli hidrasyon önemli."},
+{title:"Diyabetli Çocuklar İçin Kamp Dönemi Başlıyor",date:"18 Temmuz 2026",body:"Türkiye Diyabet Vakfı yaz kampı kayıtları başladı. Eğitim, eğlence ve sosyalleşme odaklı kampta; çocuklar insülin yönetimi, kan şekeri takibi ve sağlıklı beslenme konularında interaktif atölyelere katılacak. Aileler için de bilgilendirme seminerleri düzenlenecek. Kamp tarihleri: 1-7 Ağustos 2026. Yer: İstanbul/Büyükada. Kontenjan sınırlı, erken kayıt önerilir."}
+];
+
+const eduData=[
+{title:"1. Diyabet Nedir ve Nasıl Yönetilir?",tag:"TEMD Onaylı",body:"<strong>Diyabet Nedir?</strong><br>Diyabet, pankreastan yeterli insülin salgılanmaması veya üretilen insülinin etkisiz hale gelmesi sonucu kan şekerinin yükseldiği kronik bir metabolizma hastalığıdır.<br><br><strong>Tip 1 Diyabet:</strong> Otoimmün bir süreç sonucu pankreas beta hücreleri yok olur. Mutlak insülin eksikliği vardır. Genellikle çocukluk ve genç erişkinlik döneminde başlar. Yaşam boyu insülin tedavisi gerekir.<br><br><strong>Tip 2 Diyabet:</strong> İnsülin direnci ve göreli insülin eksikliği ile karakterizedir. Genellikle 40 yaş üzerinde görülür. Yaşam tarzı değişiklikleri, oral ilaçlar ve bazen insülin ile yönetilir.<br><br><strong>Kan Şekeri Hedefleri:</strong><br>• Açlık: 70-100 mg/dL<br>• Tokluk: <140 mg/dL<br>• HbA1c: %6.5-7<br><br><strong>Günlük Yönetim:</strong> Düzenli ölçüm, ilaç takibi, beslenme planı, egzersiz ve periyodik doktor kontrolleri esastır."},
+{title:"2. Hipoglisemi ve Hiperglisemi: Acil Müdahale",tag:"ADA Onaylı",body:"<strong>Hipoglisemi (Düşük Kan Şekeri):</strong><br>Kan şekeri <70 mg/dL olduğunda ortaya çıkar. Belirtiler: terleme, titreme, açlık hissi, kalp çarpıntısı, bulanık görme, konfüzyon.<br><br><strong>15-15 Kuralı:</strong><br>1. 15 gram hızlı karbonhidrat alın (3 şeker, 150ml meyve suyu, 4-5 adet lokum)<br>2. 15 dakika bekleyin<br>3. Kan şekerini tekrar ölçün<br>4. Hâlâ düşükse tekrarlayın<br><br><strong>Bilinç Kaybı Varsa:</strong><br>• YAN ÇEVİRİN (aspirasyonu önlemek için)<br>• 112'yi arayın<br>• Glukagon enjeksiyonu yapın (varsa)<br>• Ağızdan BİR ŞEY vermeyin<br><br><strong>Hiperglisemi (Yüksek Kan Şekeri):</strong><br>• >180 mg/dL tekrarlayan ölçümlerde<br>• Bol su için (her saat 1 bardak)<br>• Keton testi yapın<br>• >300 mg/dL + keton varsa ACİL SERVİS"},
+{title:"3. Beslenme ve Karbonhidrat Sayımı",tag:"TEMD Onaylı",body:"<strong>Glisemik İndeks (GI):</strong><br>Düşük GI (<55): Yavaş şeker yükselişi → Elma, mercimek, yulaf<br>Orta GI (55-70): Orta hızda yükseliş → Pirinç, makarna, bal<br>Yüksek GI (>70): Hızlı şeker yükselişi → Beyaz ekmek, patates, şeker<br><br><strong>Karbonhidrat Sayımı:</strong><br>1 porsiyon = 15 gram karbonhidrat<br>• 1 dilim ekmek = 1 porsiyon<br>• 1 orta boy meyve = 1 porsiyon<br>• 1/3 su bardağı pilav = 1 porsiyon<br>• 1 su bardağı süt = 1 porsiyon<br><br><strong>Etiket Okuma:</strong><br>100 gr üründeki toplam karbonhidrat değerini kontrol edin. Lif çıkarın (net KH = toplam - lif).<br><br><strong>Porsiyon Kontrolü:</strong><br>Tabağın yarısı sebze, çeyreği protein, çeyreği karbonhidrat olmalı."},
+{title:"4. Egzersiz ve Diyabet",tag:"ADA Onaylı",body:"<strong>TEMD Önerisi:</strong> Haftada en az 150 dakika orta şiddetli aerobik egzersiz (yürüyüş, yüzme, bisiklet) ve haftada 2 gün direnç egzersizi.<br><br><strong>Egzersiz Öncesi:</strong><br>• Kan şekeri <100 mg/dL → 15 gr KH alın<br>• 100-250 mg/dL → Güvenli bölge, egzersize başlayabilirsiniz<br>• >250 mg/dL → Keton testi yapın, keton varsa egzersiz yapmayın<br><br><strong>Egzersiz Sırasında:</strong><br>• 60 dakikadan uzunsa her 30 dk'da 15-30 gr KH alın<br>• CGM varsa alarm limitlerini kontrol edin<br><br><strong>Egzersiz Sonrası:</strong><br>• Hipoglisemi riski 24 saate kadar devam edebilir (özellikle Tip 1)<br>• Yatmadan önce kan şekerini kontrol edin<br>• Gerekirse gece atıştırmalığı (1 porsiyon KH) planlayın"},
+{title:"5. Diyabetik Ayak ve Komplikasyonlar",tag:"TEMD Onaylı",body:"<strong>Günlük Ayak Bakımı:</strong><br>1. Her gün ayaklarınızı kontrol edin (ayna kullanın)<br>2. Nemlendirici sürün (taban hariç, mantar riski!)<br>3. Tırnaklarınızı düz kesin, köşeleri yuvarlayın<br>4. Her gün temiz çorap giyin<br>5. Uygun ayakkabı kullanın (dar olmamalı, içi yumuşak)<br>6. Yanık, kesik, şişlik, kızarıklık varsa doktora gidin<br><br><strong>Nöropati Belirtileri:</strong><br>• Uyuşma, karıncalanma, yanma hissi<br>• Soğuk/ sıcak ayırma güçlüğü<br>• Yara iyileşmesinde gecikme<br><br><strong>Ne Zaman Acile Gitmeli?</strong><br>• Derin yara veya ülser<br>• Yayılan kızarıklık, ısı artışı<br>• Siyahlaşma (gangren)<br>• Yüksek ateş + ayak enfeksiyonu"},
+{title:"6. Teknoloji ve Diyabet: CGM, Pompa ve Yapay Pankreas",tag:"TEMD + ADA Onaylı",body:"<strong>Sürekli Glukoz Monitörü (CGM):</strong><br>Cilt altına yerleştirilen küçük bir sensör aracılığıyla 5 dakikada bir interstisyel glukoz ölçümü yapar. 14 günlük sensörler mevcuttur. Alarm özelliği ile düşük/yüksek şeker uyarısı verir.<br><br><strong>İnsülin Pompası:</strong><br>Sürekli subkutan insülin infüzyonu sağlar. Bazal insülin profili programlanabilir. Bolus hesaplayıcı ile yemek öncesi doz kolayca ayarlanır. Yeni modellerde CGM entegrasyonu mevcut.<br><br><strong>Kapalı Döngü (Yapay Pankreas):</strong><br>CGM + Pompa + Algoritma = Otomatik insülin ayarı<br>• Düşük şeker öncesi insülin kesilir<br>• Yüksek şekerde düzeltme bolusu verilir<br>• Hedef aralıkta tutma oranı %70-80'e çıkar<br><br><strong>Gelecek:</strong> İnsülin ve glukagon dual pompalar, implantable CGM'ler, akıllı lens teknolojileri geliştirme aşamasında."}
+];
+
+const videoData=[
+{title:"1. İnsülin Enjeksiyon Tekniği",author:"Prof. Dr. Ahmet Y. | Endokrinoloji Uzmanı",body:"<div style='background:#000;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;margin:12px 0'>🎬 Video Yakında Eklenecek</div><strong>Video İçeriği:</strong><br>• Doğru enjeksiyon açısı (90° deri kıvrımı, 45° ince iğne)<br>• Bölge rotasyonu ve lipohipertrofiyi önleme<br>• İğne bekleme süresi (10 saniye)<br>• İğne güvenli imha yöntemleri<br>• Seyahat ve sıcak hava depolama kuralları"},
+{title:"2. Kan Şekeri Ölçümü ve Hedefler",author:"Prof. Dr. Selin K. | İç Hastalıkları Uzmanı",body:"<div style='background:#000;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;margin:12px 0'>🎬 Video Yakında Eklenecek</div><strong>Video İçeriği:</strong><br>• Doğru ölçüm tekniği (el yıkama, kurulama, damla boyutu)<br>• Parmak ucu değiştirme ve rotasyon<br>• Strip saklama koşulları<br>• Hedef değerler ve kişiselleştirme<br>• HbA1c ve ortalama şeker ilişkisi"},
+{title:"3. Hipoglisemi Anında Ne Yapmalı?",author:"Doç. Dr. Mehmet R. | Acil Tıp Uzmanı",body:"<div style='background:#000;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;margin:12px 0'>🎬 Video Yakında Eklenecek</div><strong>Video İçeriği:</strong><br>• Erken belirtileri tanıma<br>• 15-15 kuralı uygulaması<br>• Bilinçli hastaya yardım<br>• Bilinç kaybı durumunda yan çevirme tekniği<br>• Glukagon kit kullanımı (adım adım)<br>• Ne zaman 112 aranmalı?"},
+{title:"4. Diyabetik Beslenme: Pratik Öneriler",author:"Diyetisyen Zeynep A. | Klinik Beslenme Uzmanı",body:"<div style='background:#000;height:200px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;margin:12px 0'>🎬 Video Yakında Eklenecek</div><strong>Video İçeriği:</strong><br>• Tabak modeli (½ sebze, ¼ protein, ¼ KH)<br>• Dışarıda yemek stratejileri<br>• Ramazan ve özel günlerde beslenme<br>• Sağlıklı atıştırmalık önerileri<br>• Etiket okuma pratiği<br>• Kişiselleştirilmiş beslenme planı örnekleri"}
+];
+
+function openModal(title,body){
+  document.getElementById('modal-title').innerHTML=title;
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeModal(e){
+  if(!e||e.target.id==='modal-overlay'){
+    document.getElementById('modal-overlay').style.display='none';
+    document.body.style.overflow='';
+  }
+}
+function openNews(idx){const n=newsData[idx];openModal(n.title+'<div style="font-size:13px;color:var(--text-light);margin-top:4px">'+n.date+'</div>',n.body);}
+function openEducation(idx){const e=eduData[idx];openModal(e.title+'<span class="badge" style="margin-left:8px;background:#ebf8ff;color:var(--primary)">'+e.tag+'</span>',e.body);}
+function openVideo(idx){const v=videoData[idx];openModal(v.title+'<div style="font-size:13px;color:var(--text-light);margin-top:4px">'+v.author+'</div>',v.body);}
+
+
+// ================= ALARM SYSTEM =================
+let alarmInterval=null;
+let lastAlarmMinute=-1;
+
+function startAlarmSystem(){
+  if(alarmInterval)clearInterval(alarmInterval);
+  alarmInterval=setInterval(checkAlarms,30000); // Her 30 saniyede kontrol
+  checkAlarms();
+}
+
+function checkAlarms(){
+  const now=new Date();
+  const currentMin=now.getHours()*60+now.getMinutes();
+  if(currentMin===lastAlarmMinute)return;
+  lastAlarmMinute=currentMin;
+
+  const s=S.get('settings',{});
+  const h=String(now.getHours()).padStart(2,'0');
+  const m=String(now.getMinutes()).padStart(2,'0');
+  const timeStr=h+':'+m;
+
+  // İğne saatleri kontrol
+  const injTimes=[document.getElementById('inj-time-1'),document.getElementById('inj-time-2'),document.getElementById('inj-time-3'),document.getElementById('inj-time-4')];
+  injTimes.forEach((el,idx)=>{
+    if(el&&el.value===timeStr&&s.injAlert){
+      showAlarm('💉 İğne Zamanı!','Saat '+timeStr+' - İğne vaktiniz geldi.','page-injection');
+    }
+  });
+
+  // Su hatırlatıcı (her 2 saatte bir 08:00-22:00 arası)
+  if(s.waterAlert&&now.getHours()>=8&&now.getHours()<=22&&now.getHours()%2===0&&now.getMinutes()===0){
+    showAlarm('💧 Su İçme Zamanı','Bir bardak su için, sağlığınız için önemli!','page-water');
+  }
+
+  // İlaç hatırlatıcı (sabah 08:00, akşam 20:00)
+  if(s.medAlert&&(timeStr==='08:00'||timeStr==='20:00')){
+    showAlarm('💊 İlaç Zamanı','İlacınızı almayı unutmayın!','page-medicine');
+  }
+
+  // Ayak bakımı (akşam 21:00)
+  if(s.footAlert&&timeStr==='21:00'){
+    showAlarm('🦶 Ayak Bakımı Zamanı','Bugünkü ayak kontrolünüzü yapın.','page-footcare');
+  }
+}
+
+function showAlarm(title,body,targetPage){
+  // Eğer zaten açık bir alarm varsa tekrar gösterme
+  if(document.getElementById('alarm-popup'))return;
+
+  const div=document.createElement('div');
+  div.id='alarm-popup';
+  div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px';
+  div.innerHTML='<div style="background:var(--card);border-radius:20px;padding:24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:fadeIn .3s"><div style="font-size:48px;margin-bottom:12px">⏰</div><div style="font-size:20px;font-weight:700;margin-bottom:8px">'+title+'</div><div style="font-size:15px;color:var(--text-light);margin-bottom:20px">'+body+'</div><div style="display:flex;gap:10px"><button onclick="dismissAlarm(''+targetPage+'')" style="flex:1;padding:12px;border:none;border-radius:12px;background:var(--primary);color:white;font-size:15px;font-weight:600;cursor:pointer">Git</button><button onclick="dismissAlarm()" style="flex:1;padding:12px;border:none;border-radius:12px;background:#e2e8f0;color:var(--text);font-size:15px;font-weight:600;cursor:pointer">Kapat</button></div></div>';
+  document.body.appendChild(div);
+
+  // Sesli uyarı
+  const s=S.get('settings',{});
+  if(s.soundAlert){
+    try{const audio=new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');audio.play();}catch(e){}
+  }
+}
+
+function dismissAlarm(targetPage){
+  const popup=document.getElementById('alarm-popup');
+  if(popup){popup.remove();}
+  if(targetPage){navigate(targetPage);}
+}
+
+// ================= START =================
+window.addEventListener('DOMContentLoaded',function(){
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    if(splash&&splash.style.display!=='none'){hideSplash();}
+  },2500);
+  init();
+});
+</script>
+
+<!-- MODAL -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:20px" onclick="closeModal(event)">
+<div id="modal-box" style="background:var(--card);border-radius:var(--radius);padding:24px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative" onclick="event.stopPropagation()">
+<button onclick="closeModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;color:var(--text-light);cursor:pointer">&times;</button>
+<div id="modal-title" style="font-size:20px;font-weight:700;margin-bottom:12px;padding-right:30px"></div>
+<div id="modal-body" style="font-size:14px;line-height:1.7;color:var(--text)"></div>
+</div>
+</div>
+</body>
+</html>
